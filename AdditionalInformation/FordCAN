@@ -1,0 +1,83 @@
+ID 
+	1e6
+
+	Form: Statusmeldung
+	Data: 
+
+	Radio EIN
+	00 00 e8 07 00
+	
+	Radio AUS
+	00 00 e2 07 00
+
+
+ID
+	1e9
+
+	Form: Statusmeldung(?)
+	Data
+	
+	Radio AUS
+
+	00 00 00 00 00 00 00 00
+
+	Radio EIN
+		Mehrere:
+
+		2a 20 4c 49 46 45 20 2a
+		4b 52 4f 4e 45 48 49 54
+
+	Eventuell Radio Suche:
+		20 20 20 20 20 20 20 20
+	
+ID
+	501
+
+	Form: Statusmeldung
+	Data
+
+	Warnblinkanlage AUS
+		0c 12 ff
+
+	Transition dazwischen
+
+	Warnblinkanlage EIN
+		0c 02 fd
+	
+ID
+	285
+
+	Form: Statusmeldung
+	Data
+
+	Notiz:
+		xx von 0c auf 86 bei erstem Start
+
+	Schlüssel auf 0:
+
+		00 00 xx
+	Schlüssel auf 1:
+		
+		10 00 xx
+
+	Schlüssel auf 2:
+
+		20 00 xx
+
+	Schlüssel auf 3 (Starten):
+
+		30 00 xx
+
+ID
+	501
+
+	Form: Statusmeldung
+
+	"Sicheres Heimfahrlicht" AUS
+		0c 12 ff
+
+	"Sicheres Heimfahrlicht" AN
+		0c 02 7f
+	
+
+

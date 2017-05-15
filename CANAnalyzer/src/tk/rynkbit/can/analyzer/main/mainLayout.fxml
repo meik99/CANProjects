@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ContextMenu?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+
+<AnchorPane fx:id="paneRoot" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tk.rynkbit.can.analyzer.main.MainController">
+   <children>
+      <BorderPane prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <top>
+            <ToolBar BorderPane.alignment="CENTER">
+               <items>
+                  <HBox>
+                     <children>
+                        <Button fx:id="btnConnect" mnemonicParsing="false" onAction="#clickConnect" text="Connect" />
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER_RIGHT" nodeOrientation="RIGHT_TO_LEFT">
+                     <children>
+                        <CheckBox fx:id="chkRecent" alignment="CENTER" mnemonicParsing="false" selected="true" text="Recent">
+                           <HBox.margin>
+                              <Insets />
+                           </HBox.margin>
+                        </CheckBox>
+                     </children>
+                  </HBox>
+               </items>
+            </ToolBar>
+         </top>
+         <center>
+            <TableView fx:id="tableMessages" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+              <columns>
+                <TableColumn fx:id="colId" prefWidth="75.0" text="Id" />
+                <TableColumn fx:id="colData" prefWidth="236.0" text="Data" />
+                  <TableColumn fx:id="colTimestamp" prefWidth="283.0" text="Timestamp" />
+              </columns>
+               <contextMenu>
+                  <ContextMenu>
+                    <items>
+                      <MenuItem fx:id="btnFilter" mnemonicParsing="false" onAction="#clickFilter" text="Filter" />
+                        <MenuItem fx:id="btnResetFilter" mnemonicParsing="false" onAction="#clickResetFilter" text="Reset Filter" />
+                    </items>
+                  </ContextMenu>
+               </contextMenu>
+            </TableView>
+         </center>
+      </BorderPane>
+   </children>
+</AnchorPane>
