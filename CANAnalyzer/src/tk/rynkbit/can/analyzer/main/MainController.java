@@ -7,20 +7,24 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import org.omg.CORBA.Environment;
 import tk.rynkbit.can.analyzer.main.factories.MessageTableCellFactory;
+import tk.rynkbit.can.analyzer.visualizer.VisualizerController;
 import tk.rynkbit.can.logic.CANRepository;
 import tk.rynkbit.can.logic.models.TimedCANMessage;
 import tk.rynkbit.can.logic.test.MessageSimulator;
 
 import javax.swing.*;
+import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.ResourceBundle;
+import java.sql.Time;
+import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 /**
@@ -52,6 +56,9 @@ public class MainController implements Initializable{
         colData.setCellValueFactory(MessageTableCellFactory.getDataCellFactory());
         colTimestamp.setCellValueFactory(MessageTableCellFactory.getTimestampCellFactory());
 
+        tableMessages.getSelectionModel().setSelectionMode(
+                SelectionMode.MULTIPLE
+        );
 
         model.setExecutor(new ScheduledThreadPoolExecutor(
                 Runtime.getRuntime().availableProcessors()
@@ -91,39 +98,34 @@ public class MainController implements Initializable{
             }
         }
         model.getUpdateRunnable().stop();
+        model.getExecutor().shutdownNow();
     }
 
     public void updateTable() {
         model.getUpdateRunnable().setPaused(true);
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                ObservableList<TimedCANMessage> canMessages;
+        Platform.runLater(() -> {
+            List<TimedCANMessage> canMessages = new CopyOnWriteArrayList<>();
 
-                if(model.getFitlerMessage() == null){
-                    canMessages = FXCollections.observableArrayList(
-                            CANRepository.getInstance().getMessageMap().values()
-                    );
+                if (model.getFitlerMessage() == null) {
+                    canMessages.addAll(CANRepository.getInstance().getMessageMap().values());
 
-                    if(chkRecent.selectedProperty().get() == true){
+                    if (chkRecent.selectedProperty().get() == true) {
                         canMessages.removeIf(m -> {
                             Date later = new Date();
 
                             return later.getTime() - m.getTimestamp().getTime() >= 500;
                         });
                     }
-                }else{
-                    canMessages = FXCollections.observableArrayList(
-                            CANRepository.getInstance().getMessageMap().get(
-                                    model.getFitlerMessage().getId())
-                    );
+                } else {
+                    canMessages.add(CANRepository.getInstance().getMessageMap().get(
+                            model.getFitlerMessage().getId()));
                 }
+
                 tableMessages.setItems(
-                       canMessages
+                        FXCollections.observableList(canMessages)
                 );
 
-                model.getUpdateRunnable().setPaused(false);
-            }
+            model.getUpdateRunnable().setPaused(false);
         });
     }
 
@@ -136,5 +138,29 @@ public class MainController implements Initializable{
 
     public void clickResetFilter(ActionEvent actionEvent) {
         model.setFitlerMessage(null);
+    }
+
+    public void clickVisualize(ActionEvent actionEvent) {
+        TimedCANMessage timedCANMessage = tableMessages.getSelectionModel().getSelectedItem();
+
+        if(timedCANMessage != null){
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass().getResource("../visualizer/visualizerLayout.fxml"));
+            try {
+                Parent parent = loader.load();
+                VisualizerController controller = loader.getController();
+
+                paneRoot
+                        .getScene()
+                        .getWindow()
+                        .getScene()
+                        .setRoot(parent);
+
+                controller.setCANMessage(timedCANMessage);
+                controller.setParent(paneRoot);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

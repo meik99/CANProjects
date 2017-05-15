@@ -6,6 +6,7 @@ import tk.rynkbit.can.logic.models.TimedCANMessage;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by mrynkiewicz on 14.05.17.
@@ -24,7 +25,7 @@ public class CANRepository implements CANMessageListener {
     }
 
     private CANRepository(){
-        messageMap = new LinkedHashMap<>();
+        messageMap = new ConcurrentHashMap<>();
     }
 
     @Override

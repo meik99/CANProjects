@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 
-<AnchorPane fx:id="paneRoot" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tk.rynkbit.can.analyzer.main.MainController">
+<AnchorPane fx:id="paneRoot" prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tk.rynkbit.can.analyzer.main.MainController">
    <children>
       <BorderPane prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <top>
@@ -25,7 +25,7 @@
                   </HBox>
                   <HBox alignment="CENTER_RIGHT" nodeOrientation="RIGHT_TO_LEFT">
                      <children>
-                        <CheckBox fx:id="chkRecent" alignment="CENTER" mnemonicParsing="false" selected="true" text="Recent">
+                        <CheckBox fx:id="chkRecent" alignment="CENTER" mnemonicParsing="false" text="Recent">
                            <HBox.margin>
                               <Insets />
                            </HBox.margin>
@@ -47,6 +47,7 @@
                     <items>
                       <MenuItem fx:id="btnFilter" mnemonicParsing="false" onAction="#clickFilter" text="Filter" />
                         <MenuItem fx:id="btnResetFilter" mnemonicParsing="false" onAction="#clickResetFilter" text="Reset Filter" />
+                        <MenuItem mnemonicParsing="false" onAction="#clickVisualize" text="Visualize" />
                     </items>
                   </ContextMenu>
                </contextMenu>

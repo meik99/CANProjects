@@ -18,7 +18,7 @@ public class UpdateMessages implements Runnable {
             try {
                 Thread.sleep(10);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                running = false;
             }
             if(paused == false){
                 mainController.updateTable();
