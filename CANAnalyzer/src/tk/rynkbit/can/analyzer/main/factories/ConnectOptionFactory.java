@@ -20,11 +20,12 @@ public class ConnectOptionFactory {
         if(BAUD_RATES.size() == 0){
             BAUD_RATES.add(10000);
             BAUD_RATES.add(20000);
-            BAUD_RATES.add(30000);
             BAUD_RATES.add(50000);
             BAUD_RATES.add(100000);
+            BAUD_RATES.add(125000);
             BAUD_RATES.add(250000);
             BAUD_RATES.add(500000);
+            BAUD_RATES.add(800000);
             BAUD_RATES.add(1000000);
         }
 

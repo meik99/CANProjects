@@ -60,6 +60,9 @@ public class MainController extends Controller implements Initializable {
         comboBaudrate.setItems(ConnectOptionFactory.getBaudRates());
         comboOpenMode.setItems(ConnectOptionFactory.getOpenModes());
 
+        comboBaudrate.getSelectionModel().select(4);
+        comboOpenMode.getSelectionModel().select(0);
+
         tableMessages.getSelectionModel().setSelectionMode(
                 SelectionMode.MULTIPLE
         );
@@ -93,8 +96,8 @@ public class MainController extends Controller implements Initializable {
                 }
 
                 try {
-                    usBtin.connect("/dev/ttyACM0");
-                    usBtin.openCANChannel(125000, USBtin.OpenMode.ACTIVE);
+                    usBtin.connect(port);
+                    usBtin.openCANChannel(baudRate, openMode);
 
                 } catch (USBtinException e) {
                     Alert dialog = new Alert(Alert.AlertType.ERROR);
