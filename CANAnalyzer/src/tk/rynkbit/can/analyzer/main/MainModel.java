@@ -18,6 +18,7 @@ public class MainModel {
     private ScheduledThreadPoolExecutor executor;
     private MessageSimulator messageSimulator;
     private VisualizerController virtualizationController;
+    private GarbageCollectorRunnable garbageCollectorRunnable;
 
     public void setUSBtin(USBtin USBtin) {
         this.USBtin = USBtin;
@@ -65,5 +66,13 @@ public class MainModel {
 
     public VisualizerController getVirtualizationController() {
         return virtualizationController;
+    }
+
+    public void setGarbageCollectorRunnable(GarbageCollectorRunnable garbageCollectorRunnable) {
+        this.garbageCollectorRunnable = garbageCollectorRunnable;
+    }
+
+    public GarbageCollectorRunnable getGarbageCollectorRunnable() {
+        return garbageCollectorRunnable;
     }
 }

@@ -54,7 +54,8 @@ public class MainController extends Controller implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         model = new MainModel();
         model.setUpdateRunnable(new UpdateMessages(this));
-        model.getUpdateRunnable().setTimespan(20);
+        model.getUpdateRunnable().setTimespan(5);
+        model.setGarbageCollectorRunnable(new GarbageCollectorRunnable());
 
         colId.prefWidthProperty().bind(tableMessages.widthProperty().divide(10));
         colData.prefWidthProperty().bind(tableMessages.widthProperty().divide(10 / 4));
@@ -149,6 +150,7 @@ public class MainController extends Controller implements Initializable {
     @Override
     public void updateRepository() {
         model.getUpdateRunnable().setPaused(true);
+        Platform.runLater(() -> {
             List<TimedCANMessage> canMessages = new CopyOnWriteArrayList<>();
 
             if (model.getFitlerMessage() == null) {
@@ -166,13 +168,16 @@ public class MainController extends Controller implements Initializable {
                         model.getFitlerMessage().getId()));
             }
 
-        Platform.runLater(() -> {
             tableMessages.setItems(
                     FXCollections.observableList(canMessages)
             );
             tableMessages.refresh();
+            canMessages = null;
+
+            executor.execute(model.getGarbageCollectorRunnable());
             model.getUpdateRunnable().setPaused(false);
         });
+
     }
 
     public void clickFilter(ActionEvent actionEvent) {
