@@ -7,10 +7,12 @@ import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import tk.rynkbit.can.analyzer.Controller;
 import tk.rynkbit.can.analyzer.UpdateMessages;
@@ -44,6 +46,7 @@ public class MainController extends Controller implements Initializable {
     public TextField txtPort;
     public ComboBox<Integer> comboBaudrate;
     public ComboBox<USBtin.OpenMode> comboOpenMode;
+    public HBox boxToolbarRight;
 
     private MainModel model;
 
@@ -229,5 +232,9 @@ public class MainController extends Controller implements Initializable {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void clickNotebook(ActionEvent actionEvent) {
+
     }
 }
