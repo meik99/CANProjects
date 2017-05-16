@@ -33,11 +33,11 @@ ID
 ID
 	501
 
-	Form: Statusmeldung
+	Form: Statusmeldung(?)
 	Data
 
 	Warnblinkanlage AUS
-		0c 12 ff
+		0c 02 ff
 
 	Transition dazwischen
 
@@ -78,6 +78,143 @@ ID
 
 	"Sicheres Heimfahrlicht" AN
 		0c 02 7f
+
+ID
+
+	360
 	
+	Gas nicht betätigt
+
+	00 00 00 43 54 00 00 00
+
+	Gas betätigt
+
+	00 00 00 43 14 00 00 00
+
+ID
+	201
+
+	Gaspedal Wie weit unten
+
+	Nicht betätigt
+
+	00 00 40 00 00 00 00 80
+
+	Wenig
+
+	00 00 40 00 00 00 2f 80
+
+	Mittel
+
+	00 00 40 00 00 00 6a 80
+
+	Alles
+
+	00 00 40 00 00 00 a9 80
+
+	Anderes ebenfalls
+
+vordere Nummern eventuell rpm
+
+ID
+	2d8
+
+	Radio lautstärke
+
+	0:	x8 00 10
+	1:	x8 08 10
+	2:	x8 10 10
+	3:	x8 18 10
+	4:	x8 20 10
+	usw.
+
+	
+ID
+	4c0
+	
+	Radio Signalquelle
+
+	CD:
+
+	07 34 4e 4f 20 43 44 00
+
+	AUX:
+
+	07 34 20 20 41 55 58 00
+
+	Radio:
+		(Alles andere)
+
+	Ausgeschaltet:
+
+	02 34 00 00 00 00 00 00
+
+ID
+	428 und 433
+
+	Heckscheibenheizung
+
+	AUS:
+	428:	00 76 00 00 03 00 10
+	433:	00 10 00 00 00 20 00 00
+
+	EIN:
+	428:	00 75 00 00 03 00 10
+	433:	00 90 00 00 00 20 00 00
+
+ID
+	265
+
+	Blinker
+	
+	AUS:
+	00 00 00 00 00
+
+	EIN:
+	
+		Links:
+		20 00 00 00 00
+
+		Rechts:
+		40 00 00 00 00
+
+		Wechselt zwischen EIN und AUS
+		während Blinkvorgangs
+
+ID
+	2d9
+
+	Equalizer
+
+	04 xy ab 02 00 38 28 28
+
+	x für Bass: Bei +0 auf 7
+	y für Treble: Bei +0 auf 7
+	a für Fade: Bei +0 auf 7
+	b für Balance: Bei +0 auf 7+
 
 
+ID
+	360
+
+	Zu tun mit schaltvorgang
+	evtl. Lastwechsel
+
+ID
+
+	420
+	
+	Eventuell RPM oder Geschwindigkeit
+
+	h 84 2a 04 8c 01 00 40 1f
+
+	d 132 42 04 140 01 00 64 31
+
+1494857684952
+	
+	2*100 242*4 = ~1100
+	2*1000 242*4 = 2968
+
+1494857695568
+
+	3 149
