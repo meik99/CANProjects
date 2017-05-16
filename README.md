@@ -32,16 +32,3 @@ repository https://github.com/EmbedME/USBtinLib
 Thomas Fischl
 http://www.fischl.de
 
-## JFoenix
-### License
-The full license text is included in the file AdditionalInformation/Apache
-
-### Changes
-No changes to the JFoenix library were made
-
-### Info
-This project uses the JFoex library to add a material design to
- this JavaFX application
-
-### Credits
-http://www.jfoenix.com
