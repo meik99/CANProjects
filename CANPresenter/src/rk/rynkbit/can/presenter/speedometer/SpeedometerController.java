@@ -36,16 +36,9 @@ public class SpeedometerController implements Initializable, CANMessageListener 
         width = canvas.getWidth();
         height = canvas.getHeight();
 
-        gc.setStroke(Color.BLUE);
 
-        //Middle line
-//        gc.strokeLine(width / 2, 0, width / 2, height);
-        //Rectangle left
-        gc.strokeRoundRect(10, 10, width / 2 - 20, 100,10, 10);
-        //Rectangle right
-        gc.strokeRoundRect(10 + width / 2, 10, width / 2 - 20, 100,10, 10);
 
-        receiveCANMessage(new CANMessage(0x201, new byte[]{(byte)0x0, (byte)0x0}));
+        receiveCANMessage(new CANMessage(0x201, new byte[]{(byte)0x0, (byte)0x0, (byte)0x0}));
         connect();
     }
 
@@ -68,12 +61,26 @@ public class SpeedometerController implements Initializable, CANMessageListener 
                 GraphicsContext gc = canvas.getGraphicsContext2D();
                 int byte1 = Byte.toUnsignedInt(canMessage.getData()[0]);
                 int byte2 = Byte.toUnsignedInt(canMessage.getData()[1]);
-                int rpm = byte1 * 1000 + byte2 * 4;
+                int byte3 = Byte.toUnsignedInt(canMessage.getData()[2]);
+
+                System.out.println(CANRepository.bytesToHex(canMessage.getData()));
+                int rpm = byte1 * 100 + byte2 * 4;
                 String rpmString = rpm + " RPM";
                 Text rpmText = new Text(rpmString);
                 Font bigFont = Font.font("Sans Serif", 60);
 
                 rpmText.setFont(bigFont);
+
+                gc.clearRect(0, 0, width, height);
+
+                gc.setStroke(Color.BLUE);
+
+                //Middle line
+//        gc.strokeLine(width / 2, 0, width / 2, height);
+                //Rectangle left
+                gc.strokeRoundRect(10, 10, width / 2 - 20, 100,10, 10);
+                //Rectangle right
+                gc.strokeRoundRect(10 + width / 2, 10, width / 2 - 20, 100,10, 10);
 
                 gc.setFont(bigFont);
                 gc.setStroke(Color.ALICEBLUE);
