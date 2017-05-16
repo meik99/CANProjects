@@ -28,7 +28,7 @@ public class MessageSimulator implements Runnable {
             } catch (InterruptedException e) {
                 running = false;
             }
-            int id = 0x100 + random.nextInt(0x400);
+            int id = 0x100 + random.nextInt(0x3);
             byte[] bytes = new byte[3 + random.nextInt(5)];
 
             for(int i = 0; i < bytes.length; i++){

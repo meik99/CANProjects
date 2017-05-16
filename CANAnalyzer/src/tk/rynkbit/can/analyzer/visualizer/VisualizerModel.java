@@ -1,6 +1,7 @@
 package tk.rynkbit.can.analyzer.visualizer;
 
 import javafx.scene.Parent;
+import tk.rynkbit.can.analyzer.UpdateMessages;
 import tk.rynkbit.can.logic.models.TimedCANMessage;
 
 /**
@@ -9,6 +10,7 @@ import tk.rynkbit.can.logic.models.TimedCANMessage;
 public class VisualizerModel {
     private TimedCANMessage CANMessage;
     private Parent parent;
+    private UpdateMessages updateRunnable;
 
     public void setCANMessage(TimedCANMessage CANMessage) {
         this.CANMessage = CANMessage;
@@ -24,5 +26,13 @@ public class VisualizerModel {
 
     public Parent getParent() {
         return parent;
+    }
+
+    public void setUpdateRunnable(UpdateMessages updateRunnable) {
+        this.updateRunnable = updateRunnable;
+    }
+
+    public UpdateMessages getUpdateRunnable() {
+        return updateRunnable;
     }
 }

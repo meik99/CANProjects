@@ -1,6 +1,8 @@
 package tk.rynkbit.can.analyzer.main;
 
 import de.fischl.usbtin.USBtin;
+import tk.rynkbit.can.analyzer.UpdateMessages;
+import tk.rynkbit.can.analyzer.visualizer.VisualizerController;
 import tk.rynkbit.can.logic.models.TimedCANMessage;
 import tk.rynkbit.can.logic.test.MessageSimulator;
 
@@ -15,6 +17,7 @@ public class MainModel {
     private TimedCANMessage fitlerMessage;
     private ScheduledThreadPoolExecutor executor;
     private MessageSimulator messageSimulator;
+    private VisualizerController virtualizationController;
 
     public void setUSBtin(USBtin USBtin) {
         this.USBtin = USBtin;
@@ -54,5 +57,13 @@ public class MainModel {
 
     public MessageSimulator getMessageSimulator() {
         return messageSimulator;
+    }
+
+    public void setVirtualizationController(VisualizerController virtualizationController) {
+        this.virtualizationController = virtualizationController;
+    }
+
+    public VisualizerController getVirtualizationController() {
+        return virtualizationController;
     }
 }

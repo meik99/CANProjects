@@ -1,28 +1,25 @@
 package tk.rynkbit.can.analyzer.main;
 
-import de.fischl.usbtin.CANMessage;
 import de.fischl.usbtin.USBtin;
 import de.fischl.usbtin.USBtinException;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
-import org.omg.CORBA.Environment;
+import tk.rynkbit.can.analyzer.Controller;
+import tk.rynkbit.can.analyzer.UpdateMessages;
 import tk.rynkbit.can.analyzer.main.factories.MessageTableCellFactory;
 import tk.rynkbit.can.analyzer.visualizer.VisualizerController;
 import tk.rynkbit.can.logic.CANRepository;
 import tk.rynkbit.can.logic.models.TimedCANMessage;
 import tk.rynkbit.can.logic.test.MessageSimulator;
 
-import javax.swing.*;
 import java.io.IOException;
 import java.net.URL;
-import java.sql.Time;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -30,7 +27,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 /**
  * Created by mrynkiewicz on 14.05.17.
  */
-public class MainController implements Initializable{
+public class MainController extends Controller implements Initializable {
     public Button btnConnect;
     public AnchorPane paneRoot;
     public TableColumn<TimedCANMessage, String> colId;
@@ -60,78 +57,83 @@ public class MainController implements Initializable{
                 SelectionMode.MULTIPLE
         );
 
-        model.setExecutor(new ScheduledThreadPoolExecutor(
-                Runtime.getRuntime().availableProcessors()
-        ));
-        model.getExecutor().execute(model.getUpdateRunnable());
+        executor.execute(model.getUpdateRunnable());
     }
 
     public void clickConnect(ActionEvent actionEvent) {
-        if(System.getenv("DEBUG") == null || System.getenv("DEBUG").equals("false")){
+        if (System.getenv("DEBUG") == null || System.getenv("DEBUG").equals("false")) {
             USBtin usBtin = new USBtin();
             usBtin.addMessageListener(CANRepository.getInstance());
             try {
                 usBtin.connect("/dev/ttyACM0");
                 usBtin.openCANChannel(125000, USBtin.OpenMode.ACTIVE);
             } catch (USBtinException e) {
-                e.printStackTrace();
+                Alert dialog = new Alert(Alert.AlertType.ERROR);
+                dialog.setTitle("Connection error");
+                dialog.setContentText(e.getMessage());
+                dialog.show();
             }
             model.setUSBtin(usBtin);
-        }else{
-            model.setMessageSimulator(new MessageSimulator());
-            model.getExecutor().execute(model.getMessageSimulator());
+        } else {
+            if(model.getMessageSimulator() == null){
+                model.setMessageSimulator(new MessageSimulator());
+                executor.execute(model.getMessageSimulator());
+            }
         }
     }
 
 
     public void stop() {
-        if(model.getUSBtin() != null){
+        if (model.getUSBtin() != null) {
             try {
                 model.getUSBtin().closeCANChannel();
-            } catch (USBtinException e) {
-                e.printStackTrace();
+            } catch (USBtinException ignored) {
+
             }
             try {
                 model.getUSBtin().disconnect();
-            } catch (USBtinException e) {
-                e.printStackTrace();
+            } catch (USBtinException ignored) {
+
             }
         }
         model.getUpdateRunnable().stop();
-        model.getExecutor().shutdownNow();
+        executor.shutdownNow();
+
+        if(model.getVirtualizationController() != null){
+            model.getVirtualizationController().stop();
+        }
     }
 
-    public void updateTable() {
-        model.getUpdateRunnable().setPaused(true);
-        Platform.runLater(() -> {
+    @Override
+    public void updateRepository() {
             List<TimedCANMessage> canMessages = new CopyOnWriteArrayList<>();
 
-                if (model.getFitlerMessage() == null) {
-                    canMessages.addAll(CANRepository.getInstance().getMessageMap().values());
+            if (model.getFitlerMessage() == null) {
+                canMessages.addAll(CANRepository.getInstance().getMessageMap().values());
 
-                    if (chkRecent.selectedProperty().get() == true) {
-                        canMessages.removeIf(m -> {
-                            Date later = new Date();
+                if (chkRecent.selectedProperty().get() == true) {
+                    canMessages.removeIf(m -> {
+                        Date later = new Date();
 
-                            return later.getTime() - m.getTimestamp().getTime() >= 500;
-                        });
-                    }
-                } else {
-                    canMessages.add(CANRepository.getInstance().getMessageMap().get(
-                            model.getFitlerMessage().getId()));
+                        return later.getTime() - m.getTimestamp().getTime() >= 500;
+                    });
                 }
+            } else {
+                canMessages.add(CANRepository.getInstance().getMessageMap().get(
+                        model.getFitlerMessage().getId()));
+            }
 
-                tableMessages.setItems(
-                        FXCollections.observableList(canMessages)
-                );
-
-            model.getUpdateRunnable().setPaused(false);
+        Platform.runLater(() -> {
+            tableMessages.setItems(
+                    FXCollections.observableList(canMessages)
+            );
+            tableMessages.refresh();
         });
     }
 
     public void clickFilter(ActionEvent actionEvent) {
         TimedCANMessage filterMessage = tableMessages.getSelectionModel().getSelectedItem();
-        if(filterMessage != null){
+        if (filterMessage != null) {
             model.setFitlerMessage(filterMessage);
         }
     }
@@ -143,7 +145,7 @@ public class MainController implements Initializable{
     public void clickVisualize(ActionEvent actionEvent) {
         TimedCANMessage timedCANMessage = tableMessages.getSelectionModel().getSelectedItem();
 
-        if(timedCANMessage != null){
+        if (timedCANMessage != null) {
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(getClass().getResource("../visualizer/visualizerLayout.fxml"));
             try {
@@ -158,6 +160,8 @@ public class MainController implements Initializable{
 
                 controller.setCANMessage(timedCANMessage);
                 controller.setParent(paneRoot);
+
+                model.setVirtualizationController(controller);
             } catch (IOException e) {
                 e.printStackTrace();
             }
