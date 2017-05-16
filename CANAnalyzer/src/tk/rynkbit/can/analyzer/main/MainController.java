@@ -12,6 +12,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import tk.rynkbit.can.analyzer.Controller;
 import tk.rynkbit.can.analyzer.UpdateMessages;
+import tk.rynkbit.can.analyzer.main.factories.ConnectOptionFactory;
 import tk.rynkbit.can.analyzer.main.factories.MessageTableCellFactory;
 import tk.rynkbit.can.analyzer.visualizer.VisualizerController;
 import tk.rynkbit.can.logic.CANRepository;
@@ -37,6 +38,9 @@ public class MainController extends Controller implements Initializable {
     public MenuItem btnFilter;
     public MenuItem btnResetFilter;
     public CheckBox chkRecent;
+    public TextField txtPort;
+    public ComboBox<Integer> comboBaudrate;
+    public ComboBox<USBtin.OpenMode> comboOpenMode;
 
     private MainModel model;
 
@@ -53,6 +57,9 @@ public class MainController extends Controller implements Initializable {
         colData.setCellValueFactory(MessageTableCellFactory.getDataCellFactory());
         colTimestamp.setCellValueFactory(MessageTableCellFactory.getTimestampCellFactory());
 
+        comboBaudrate.setItems(ConnectOptionFactory.getBaudRates());
+        comboOpenMode.setItems(ConnectOptionFactory.getOpenModes());
+
         tableMessages.getSelectionModel().setSelectionMode(
                 SelectionMode.MULTIPLE
         );
@@ -62,18 +69,43 @@ public class MainController extends Controller implements Initializable {
 
     public void clickConnect(ActionEvent actionEvent) {
         if (System.getenv("DEBUG") == null || System.getenv("DEBUG").equals("false")) {
-            USBtin usBtin = new USBtin();
-            usBtin.addMessageListener(CANRepository.getInstance());
-            try {
-                usBtin.connect("/dev/ttyACM0");
-                usBtin.openCANChannel(125000, USBtin.OpenMode.ACTIVE);
-            } catch (USBtinException e) {
-                Alert dialog = new Alert(Alert.AlertType.ERROR);
-                dialog.setTitle("Connection error");
-                dialog.setContentText(e.getMessage());
-                dialog.show();
+            String port = txtPort.getText();
+            int baudRate = comboBaudrate.getSelectionModel().getSelectedItem();
+            USBtin.OpenMode openMode = comboOpenMode.getSelectionModel().getSelectedItem();
+
+            if(port != null && port.length() > 0 && openMode != null){
+                USBtin usBtin;
+                if(model.getUSBtin() != null){
+                    try {
+                        model.getUSBtin().closeCANChannel();
+                    } catch (USBtinException ignored) {
+
+                    }
+                    try {
+                        model.getUSBtin().disconnect();
+                    } catch (USBtinException e) {
+                        e.printStackTrace();
+                    }
+                    usBtin = model.getUSBtin();
+                }else{
+                    usBtin = new USBtin();
+                    usBtin.addMessageListener(CANRepository.getInstance());
+                }
+
+                try {
+                    usBtin.connect("/dev/ttyACM0");
+                    usBtin.openCANChannel(125000, USBtin.OpenMode.ACTIVE);
+
+                } catch (USBtinException e) {
+                    Alert dialog = new Alert(Alert.AlertType.ERROR);
+                    dialog.setTitle("Connection error");
+                    dialog.setContentText(e.getMessage());
+                    dialog.show();
+                }
+
+                model.setUSBtin(usBtin);
             }
-            model.setUSBtin(usBtin);
+
         } else {
             if(model.getMessageSimulator() == null){
                 model.setMessageSimulator(new MessageSimulator());
