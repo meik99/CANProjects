@@ -30,6 +30,12 @@ public class SpeedometerController implements Initializable, CANMessageListener 
     private double width;
     private double height;
 
+    private final double throttleScale = 100.0 / 0xb4;
+
+    private final Color BACKGROUND_COLOR = Color.BLACK;
+    private final Color MAIN_COLOR = Color.BLUE;
+    private final Color TEXT_COLOR = Color.ALICEBLUE;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         GraphicsContext gc = canvas.getGraphicsContext2D();
@@ -38,7 +44,8 @@ public class SpeedometerController implements Initializable, CANMessageListener 
 
 
 
-        receiveCANMessage(new CANMessage(0x201, new byte[]{(byte)0x0, (byte)0x0, (byte)0x0}));
+        receiveCANMessage(new CANMessage(0x201,
+                new byte[]{(byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0}));
         connect();
     }
 
@@ -59,35 +66,56 @@ public class SpeedometerController implements Initializable, CANMessageListener 
         if(canMessage.getId() == 0x201){
             Platform.runLater(() -> {
                 GraphicsContext gc = canvas.getGraphicsContext2D();
-                int byte1 = Byte.toUnsignedInt(canMessage.getData()[0]);
-                int byte2 = Byte.toUnsignedInt(canMessage.getData()[1]);
-                int byte3 = Byte.toUnsignedInt(canMessage.getData()[2]);
-
-                System.out.println(CANRepository.bytesToHex(canMessage.getData()));
-                int rpm = byte1 * 100 + byte2 * 4;
+                int rpm1 = Byte.toUnsignedInt(canMessage.getData()[0]);
+                int rpm2 = Byte.toUnsignedInt(canMessage.getData()[1]);
+                int rpm = rpm1 * 100 + rpm2 * 4;
                 String rpmString = rpm + " RPM";
                 Text rpmText = new Text(rpmString);
                 Font bigFont = Font.font("Sans Serif", 60);
 
+                double throttle = Byte.toUnsignedInt(canMessage.getData()[6]) * throttleScale;
+                String throttleString = String.format("%.0f °", throttle);
+                Text throttleText = new Text(throttleString);
+
+
+
+
+
                 rpmText.setFont(bigFont);
+                throttleText.setFont(bigFont);
 
+                gc.setFill(BACKGROUND_COLOR);
                 gc.clearRect(0, 0, width, height);
+                gc.fillRect(0, 0, width, height);
 
-                gc.setStroke(Color.BLUE);
+                gc.setStroke(MAIN_COLOR);
 
-                //Middle line
-//        gc.strokeLine(width / 2, 0, width / 2, height);
-                //Rectangle left
+                //Rectangle top left
                 gc.strokeRoundRect(10, 10, width / 2 - 20, 100,10, 10);
-                //Rectangle right
+                //Rectangle top right
                 gc.strokeRoundRect(10 + width / 2, 10, width / 2 - 20, 100,10, 10);
+                //Rectangle clutch (middle left)
+                gc.strokeRoundRect(10, 220, width / 3 - 20, 100,10, 10);
+                //Rectangle break (middle middle)
+                gc.strokeRoundRect(10 + width - width / 3, 220, width / 3 - 20, 100,10, 10);
+                //Rectangle throttle (middle right)
+                gc.strokeRoundRect(10 + width - 2*width / 3, 220, width / 3 - 20, 100,10, 10);
 
                 gc.setFont(bigFont);
-                gc.setStroke(Color.ALICEBLUE);
-                gc.setFill(Color.ALICEBLUE);
+                gc.setStroke(TEXT_COLOR);
+                gc.setFill(TEXT_COLOR);
+
                 gc.fillText(rpmString,
                         -30 + width / 2 - rpmText.getBoundsInLocal().getWidth(),
                         115 - rpmText.getBoundsInLocal().getHeight() / 2);
+                gc.fillText(throttleString,
+                        -30 + width - throttleText.getBoundsInLocal().getWidth(),
+                        330 - throttleText.getBoundsInLocal().getHeight() / 2);
+
+
+                gc.fillText("Clutch", 10, 200);
+                gc.fillText("Break", 10 + width - 2*width / 3, 200);
+                gc.fillText("Throttle", 10 + width - width / 3, 200);
             });
         }
     }
