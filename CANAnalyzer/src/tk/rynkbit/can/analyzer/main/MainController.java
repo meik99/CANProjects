@@ -8,12 +8,15 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.Stage;
 import tk.rynkbit.can.analyzer.Controller;
 import tk.rynkbit.can.analyzer.UpdateMessages;
 import tk.rynkbit.can.analyzer.main.factories.ConnectOptionFactory;
 import tk.rynkbit.can.analyzer.main.factories.MessageTableCellFactory;
+import tk.rynkbit.can.analyzer.note.NoteController;
 import tk.rynkbit.can.analyzer.visualizer.VisualizerController;
 import tk.rynkbit.can.logic.CANRepository;
 import tk.rynkbit.can.logic.models.TimedCANMessage;
@@ -48,6 +51,7 @@ public class MainController extends Controller implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         model = new MainModel();
         model.setUpdateRunnable(new UpdateMessages(this));
+        model.getUpdateRunnable().setTimespan(20);
 
         colId.prefWidthProperty().bind(tableMessages.widthProperty().divide(10));
         colData.prefWidthProperty().bind(tableMessages.widthProperty().divide(10 / 4));
@@ -141,6 +145,7 @@ public class MainController extends Controller implements Initializable {
 
     @Override
     public void updateRepository() {
+        model.getUpdateRunnable().setPaused(true);
             List<TimedCANMessage> canMessages = new CopyOnWriteArrayList<>();
 
             if (model.getFitlerMessage() == null) {
@@ -163,6 +168,7 @@ public class MainController extends Controller implements Initializable {
                     FXCollections.observableList(canMessages)
             );
             tableMessages.refresh();
+            model.getUpdateRunnable().setPaused(false);
         });
     }
 
@@ -197,6 +203,28 @@ public class MainController extends Controller implements Initializable {
                 controller.setParent(paneRoot);
 
                 model.setVirtualizationController(controller);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void clickNote(ActionEvent actionEvent) {
+        TimedCANMessage timedCANMessage = tableMessages.getSelectionModel().getSelectedItem();
+
+        if(timedCANMessage != null){
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass().getResource("../note/noteLayout.fxml"));
+
+            try {
+                Parent root = loader.load();
+                NoteController controller = loader.getController();
+                Stage stage = new Stage();
+
+                stage.setTitle("Note");
+                stage.setScene(new Scene(root));
+                controller.setTimedCANMesage(timedCANMessage);
+                stage.show();
             } catch (IOException e) {
                 e.printStackTrace();
             }

@@ -53,6 +53,7 @@
                       <MenuItem fx:id="btnFilter" mnemonicParsing="false" onAction="#clickFilter" text="Filter" />
                         <MenuItem fx:id="btnResetFilter" mnemonicParsing="false" onAction="#clickResetFilter" text="Reset Filter" />
                         <MenuItem mnemonicParsing="false" onAction="#clickVisualize" text="Visualize" />
+                        <MenuItem mnemonicParsing="false" onAction="#clickNote" text="Note" />
                     </items>
                   </ContextMenu>
                </contextMenu>
