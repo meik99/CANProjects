@@ -216,25 +216,29 @@ public class MainController extends Controller implements Initializable {
         TimedCANMessage timedCANMessage = tableMessages.getSelectionModel().getSelectedItem();
 
         if(timedCANMessage != null){
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(getClass().getResource("../note/noteLayout.fxml"));
-
-            try {
-                Parent root = loader.load();
-                NoteController controller = loader.getController();
-                Stage stage = new Stage();
-
-                stage.setTitle("Note");
-                stage.setScene(new Scene(root));
-                controller.setTimedCANMesage(timedCANMessage);
-                stage.show();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            openNotes(timedCANMessage);
         }
     }
 
     public void clickNotebook(ActionEvent actionEvent) {
+        openNotes(null);
+    }
 
+    private void openNotes(TimedCANMessage timedCANMessage){
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("../note/noteLayout.fxml"));
+
+        try {
+            Parent root = loader.load();
+            NoteController controller = loader.getController();
+            Stage stage = new Stage();
+
+            stage.setTitle("Note");
+            stage.setScene(new Scene(root));
+            controller.setTimedCANMesage(timedCANMessage);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
