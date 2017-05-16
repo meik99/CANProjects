@@ -50,6 +50,9 @@ public class VisualizerController extends Controller implements Initializable{
 
         seriesList = new ArrayList<>();
 
+        chart.setAnimated(false);
+        chart.setCreateSymbols(false);
+
         model.setUpdateRunnable(new UpdateMessages(this));
         model.getUpdateRunnable().setTimespan(100);
         executor.execute(model.getUpdateRunnable());

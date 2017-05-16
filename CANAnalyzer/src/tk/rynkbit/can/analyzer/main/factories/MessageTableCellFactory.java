@@ -37,7 +37,7 @@ public class MessageTableCellFactory {
         hexChars[2] = ' ';
 
         for ( int j = 0; j < bytes.length; j++ ) {
-            int v = bytes[j] & 0xFF;
+            int v = Byte.toUnsignedInt(bytes[j]);
             hexChars[j * 3 + 3] = hexArray[v >>> 4];
             hexChars[j * 3 + 4] = hexArray[v & 0x0F];
             hexChars[j * 3 + 5] = ' ';
