@@ -27,6 +27,8 @@ Keep in mind that this tool is in an early stage of development. So expect perfo
 failures of miscellaneous kinds and maybe wrong data over all. Nevertheless is already used it
 and one can retrieve valuable data.
 
+To access the latest, most stable as possible version, use develop-branch.
+
 ## CANPresenter
 
 Simulates a speedometer with data from a CAN-bus.
