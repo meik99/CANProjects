@@ -45,7 +45,7 @@ public class SpeedometerController implements Initializable, CANMessageListener 
         //Rectangle right
         gc.strokeRoundRect(10 + width / 2, 10, width / 2 - 20, 100,10, 10);
 
-        receiveCANMessage(new CANMessage(0x201, new byte[]{(byte)0x02, (byte)0x12}));
+        receiveCANMessage(new CANMessage(0x201, new byte[]{(byte)0x0, (byte)0x0}));
         connect();
     }
 
