@@ -18,6 +18,7 @@
           <element id="library" level="project" name="Maven: org.usb4java:libusb4java:osx-x86:1.2.0" />
           <element id="library" level="project" name="Maven: org.usb4java:libusb4java:osx-x86_64:1.2.0" />
           <element id="library" level="project" name="Maven: javax.usb:usb-api:1.0.2" />
+          <element id="library" level="project" name="Maven: org.scream3r:jssc:2.8.0" />
         </element>
       </element>
       <element id="directory" name="META-INF">

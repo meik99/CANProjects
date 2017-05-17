@@ -6,6 +6,7 @@ import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.usb.UsbException;
 import javax.usb.UsbHostManager;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 /**
  * Created by mrynkiewicz on 17.05.17.
@@ -13,11 +14,15 @@ import javax.usb.UsbHostManager;
 @Singleton
 @Startup
 public class InitBean {
-    private UsbDeviceListener deviceListener;
+    private UsbServiceListenerImp deviceListener;
+    private ScheduledThreadPoolExecutor executor;
 
     @PostConstruct
     public void setup(){
-        deviceListener = new UsbDeviceListener();
+        deviceListener = new UsbServiceListenerImp();
+        executor = new ScheduledThreadPoolExecutor(
+                Runtime.getRuntime().availableProcessors()
+        );
 
         try {
             UsbHostManager.getUsbServices().addUsbServicesListener(
@@ -26,6 +31,8 @@ public class InitBean {
         } catch (UsbException e) {
             e.printStackTrace();
         }
+
+        executor.execute(new MessageSender());
     }
 
     @PreDestroy
@@ -37,5 +44,7 @@ public class InitBean {
         } catch (UsbException e) {
             e.printStackTrace();
         }
+
+        executor.shutdown();
     }
 }
