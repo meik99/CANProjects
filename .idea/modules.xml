@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/CANAnalyzer/CANAnalyzer.iml" filepath="$PROJECT_DIR$/CANAnalyzer/CANAnalyzer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/CANLogic/CANLogic.iml" filepath="$PROJECT_DIR$/CANLogic/CANLogic.iml" />
+      <module fileurl="file://$PROJECT_DIR$/CANPresenter/CANPresenter.iml" filepath="$PROJECT_DIR$/CANPresenter/CANPresenter.iml" />
+      <module fileurl="file://$PROJECT_DIR$/CANProjects.iml" filepath="$PROJECT_DIR$/CANProjects.iml" />
+      <module fileurl="file://$PROJECT_DIR$/USBHost/USBHost.iml" filepath="$PROJECT_DIR$/USBHost/USBHost.iml" />
+    </modules>
+  </component>
+</project>

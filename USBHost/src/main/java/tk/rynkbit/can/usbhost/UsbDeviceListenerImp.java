@@ -28,7 +28,10 @@ public class UsbDeviceListenerImp implements UsbDeviceListener {
         String text = new String(data, Charset.forName("UTF-8"));
 
         if(text.equals(USBHostProtocol.DEVICE_CONNECT)){
+            String canString = USBHostProtocol.DEVICE_CONNECT;
+
             DeviceRepository.getInstance().addDevice(event.getUsbDevice());
+            DeviceRepository.getInstance().sendData(event.getUsbDevice(), canString.getBytes());
         }
     }
 }

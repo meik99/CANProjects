@@ -54,26 +54,7 @@ public class MessageSender implements Runnable {
                 buffer.putLong(canMessage.getTimestamp().getTime());
             }
 
-            for (UsbDevice device :
-                    devices) {
-                configuration = device.getActiveUsbConfiguration();
-                usbInterface = configuration.getUsbInterface((byte)1);
-                try {
-                    usbInterface.claim();
-                    controlIrp = device.createUsbControlIrp(
-                            (byte)(UsbConst.REQUESTTYPE_TYPE_CLASS |
-                            UsbConst.REQUESTTYPE_RECIPIENT_INTERFACE),
-                            (byte) 0x09,
-                            (short) 2,
-                            (short) 1
-                    );
-                    controlIrp.setData(buffer.array());
-                    device.syncSubmit(controlIrp);
-                    usbInterface.release();
-                } catch (UsbException e) {
-                    e.printStackTrace();
-                }
-            }
+            DeviceRepository.getInstance().sendDataToAll(buffer.array());
 
             if(Thread.currentThread().isInterrupted()){
                 running = false;
