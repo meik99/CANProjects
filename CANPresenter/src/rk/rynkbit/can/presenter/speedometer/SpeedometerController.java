@@ -32,9 +32,9 @@ public class SpeedometerController implements Initializable, CANMessageListener 
 
     private final double throttleScale = 100.0 / 0xb4;
 
-    private final Color BACKGROUND_COLOR = Color.BLACK;
+    private final Color BACKGROUND_COLOR = Color.WHITE;
     private final Color MAIN_COLOR = Color.BLUE;
-    private final Color TEXT_COLOR = Color.ALICEBLUE;
+    private final Color TEXT_COLOR = Color.BLACK;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
