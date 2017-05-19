@@ -4,14 +4,18 @@ import de.fischl.usbtin.CANMessage;
 import de.fischl.usbtin.CANMessageListener;
 import de.fischl.usbtin.USBtin;
 import de.fischl.usbtin.USBtinException;
+import eu.hansolo.medusa.Gauge;
+import eu.hansolo.medusa.GaugeBuilder;
 import javafx.application.Platform;
 import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Stop;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import tk.rynkbit.can.logic.CANRepository;
+import rk.rynkbit.can.presenter.speedometer.factory.GaugeFactory;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -20,15 +24,13 @@ import java.util.ResourceBundle;
  * Created by michael on 16.05.17.
  */
 public class SpeedometerController implements Initializable, CANMessageListener {
-    public Canvas canvas;
+    public HBox primaryBox;
+    public HBox secondaryBox;
 
     private SpeedometerModel model = new SpeedometerModel();
 
     private double width;
     private double height;
-
-    private int rpm1Max =0;
-    private int rpm2Max =0;
 
     private final double throttleScale = 100.0 / 0xb4;
 
@@ -36,14 +38,26 @@ public class SpeedometerController implements Initializable, CANMessageListener 
     private final Color MAIN_COLOR = Color.BLUE;
     private final Color TEXT_COLOR = Color.BLACK;
 
+    private Gauge rpmGauge;
+    private Gauge velocityGauge;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-        width = canvas.getWidth();
-        height = canvas.getHeight();
+        rpmGauge = GaugeFactory.createGauge(
+                "RPM", "rotations / minute", 0, 7000, true, 6000,
+                new Stop(0, Color.WHITE), new Stop(1.0 / 7 * 5, Color.BLUE),
+                new Stop(1.0/7 * 6, Color.RED), new Stop(1.0, Color.DARKRED)
+        );
+        velocityGauge = GaugeFactory.createGauge(
+                "Velocity", "km/h", 0, 270, false, 0,
+                new Stop(0, Color.WHITE), new Stop(1, Color.RED)
+        );
+
+        primaryBox.getChildren().add(rpmGauge);
+        primaryBox.getChildren().add(velocityGauge);
 
         receiveCANMessage(new CANMessage(0x201,
-                new byte[]{(byte)0x00, (byte)0x00, (byte)0x0, (byte)0x0, (byte)0x00, (byte)0x00, (byte)0x0, (byte)0x0}));
+                new byte[]{(byte)0x01, (byte)0xe8, (byte)0x0, (byte)0x0, (byte)0x33, (byte)0x40, (byte)0x0, (byte)0x0}));
         connect();
     }
 
@@ -63,72 +77,19 @@ public class SpeedometerController implements Initializable, CANMessageListener 
     public void receiveCANMessage(CANMessage canMessage) {
         if(canMessage.getId() == 0x201){
             Platform.runLater(() -> {
-                GraphicsContext gc = canvas.getGraphicsContext2D();
                 int rpm1 = Byte.toUnsignedInt(canMessage.getData()[0]);
                 int rpm2 = Byte.toUnsignedInt(canMessage.getData()[1]);
                 int v1 = Byte.toUnsignedInt(canMessage.getData()[4]);
                 int v2 = Byte.toUnsignedInt(canMessage.getData()[5]);
 
-                int rpm = rpm1 * 250 + rpm2;
-                double v = v1 * 3.6;
-
-                if(v2 > 0){
-                    v *= (255.0 / v2);
+                if(v2 < 150 || v2 > 250){
+                    v2 = 200;
                 }
+                int rpm = rpm1 * 250 + rpm2;
+                double v = v1 * 3.6 * (v2 / 255.0);
 
-                String rpmString = rpm + " RPM";
-                String vString = String.format(
-                        "%.2f km/h", v
-                );
-                Text rpmText = new Text(rpmString);
-                Text vText = new Text(vString);
-                Font bigFont = Font.font("Sans Serif", 55);
-
-                double throttle = Byte.toUnsignedInt(canMessage.getData()[6]) * throttleScale;
-                String throttleString = String.format("%.0f %c", throttle, '%');
-                Text throttleText = new Text(throttleString);
-
-                rpmText.setFont(bigFont);
-                throttleText.setFont(bigFont);
-                vText.setFont(bigFont);
-
-                gc.setFill(BACKGROUND_COLOR);
-                gc.clearRect(0, 0, width, height);
-                gc.fillRect(0, 0, width, height);
-
-                gc.setStroke(MAIN_COLOR);
-
-                //Rectangle top left
-                gc.strokeRoundRect(10, 10, width / 2 - 20, 100,10, 10);
-                //Rectangle top right
-                gc.strokeRoundRect(10 + width / 2, 10, width / 2 - 20, 100,10, 10);
-                //Rectangle clutch (middle left)
-                gc.strokeRoundRect(10, 220, width / 3 - 20, 100,10, 10);
-                //Rectangle break (middle middle)
-                gc.strokeRoundRect(10 + width - width / 3, 220, width / 3 - 20, 100,10, 10);
-                //Rectangle throttle (middle right)
-                gc.strokeRoundRect(10 + width - 2*width / 3, 220, width / 3 - 20, 100,10, 10);
-
-                gc.setFont(bigFont);
-                gc.setStroke(TEXT_COLOR);
-                gc.setFill(TEXT_COLOR);
-
-                gc.fillText(rpmString,
-                        -30 + width / 2 - rpmText.getBoundsInLocal().getWidth(),
-                        115 - rpmText.getBoundsInLocal().getHeight() / 2);
-
-                gc.fillText(vString,
-                        -30 + width - vText.getBoundsInLocal().getWidth(),
-                        115 - vText.getBoundsInLocal().getHeight() / 2);
-
-                gc.fillText(throttleString,
-                        -30 + width - throttleText.getBoundsInLocal().getWidth(),
-                        330 - throttleText.getBoundsInLocal().getHeight() / 2);
-
-
-                gc.fillText("Clutch", 10, 200);
-                gc.fillText("Break", 10 + width - 2*width / 3, 200);
-                gc.fillText("Throttle", 10 + width - width / 3, 200);
+                rpmGauge.valueProperty().setValue(rpm);
+                velocityGauge.valueProperty().setValue(v);
             });
         }
     }
