@@ -1,6 +1,5 @@
 package rk.rynkbit.can.presenter.speedometer;
 
-import com.sun.javafx.tk.FontMetrics;
 import de.fischl.usbtin.CANMessage;
 import de.fischl.usbtin.CANMessageListener;
 import de.fischl.usbtin.USBtin;
@@ -10,8 +9,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
-import javafx.scene.shape.ArcType;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import tk.rynkbit.can.logic.CANRepository;
@@ -30,6 +27,9 @@ public class SpeedometerController implements Initializable, CANMessageListener 
     private double width;
     private double height;
 
+    private int rpm1Max =0;
+    private int rpm2Max =0;
+
     private final double throttleScale = 100.0 / 0xb4;
 
     private final Color BACKGROUND_COLOR = Color.WHITE;
@@ -42,10 +42,8 @@ public class SpeedometerController implements Initializable, CANMessageListener 
         width = canvas.getWidth();
         height = canvas.getHeight();
 
-
-
         receiveCANMessage(new CANMessage(0x201,
-                new byte[]{(byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0}));
+                new byte[]{(byte)0x00, (byte)0x00, (byte)0x0, (byte)0x0, (byte)0x00, (byte)0x00, (byte)0x0, (byte)0x0}));
         connect();
     }
 
@@ -68,21 +66,31 @@ public class SpeedometerController implements Initializable, CANMessageListener 
                 GraphicsContext gc = canvas.getGraphicsContext2D();
                 int rpm1 = Byte.toUnsignedInt(canMessage.getData()[0]);
                 int rpm2 = Byte.toUnsignedInt(canMessage.getData()[1]);
-                int rpm = rpm1 * 100 + rpm2 * 4;
+                int v1 = Byte.toUnsignedInt(canMessage.getData()[4]);
+                int v2 = Byte.toUnsignedInt(canMessage.getData()[5]);
+
+                int rpm = rpm1 * 250 + rpm2;
+                double v = v1 * 3.6;
+
+                if(v2 > 0){
+                    v *= (255.0 / v2);
+                }
+
                 String rpmString = rpm + " RPM";
+                String vString = String.format(
+                        "%.2f km/h", v
+                );
                 Text rpmText = new Text(rpmString);
-                Font bigFont = Font.font("Sans Serif", 60);
+                Text vText = new Text(vString);
+                Font bigFont = Font.font("Sans Serif", 55);
 
                 double throttle = Byte.toUnsignedInt(canMessage.getData()[6]) * throttleScale;
-                String throttleString = String.format("%.0f °", throttle);
+                String throttleString = String.format("%.0f %c", throttle, '%');
                 Text throttleText = new Text(throttleString);
-
-
-
-
 
                 rpmText.setFont(bigFont);
                 throttleText.setFont(bigFont);
+                vText.setFont(bigFont);
 
                 gc.setFill(BACKGROUND_COLOR);
                 gc.clearRect(0, 0, width, height);
@@ -108,6 +116,11 @@ public class SpeedometerController implements Initializable, CANMessageListener 
                 gc.fillText(rpmString,
                         -30 + width / 2 - rpmText.getBoundsInLocal().getWidth(),
                         115 - rpmText.getBoundsInLocal().getHeight() / 2);
+
+                gc.fillText(vString,
+                        -30 + width - vText.getBoundsInLocal().getWidth(),
+                        115 - vText.getBoundsInLocal().getHeight() / 2);
+
                 gc.fillText(throttleString,
                         -30 + width - throttleText.getBoundsInLocal().getWidth(),
                         330 - throttleText.getBoundsInLocal().getHeight() / 2);

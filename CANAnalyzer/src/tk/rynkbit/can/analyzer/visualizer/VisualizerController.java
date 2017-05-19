@@ -18,6 +18,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.util.Callback;
 import tk.rynkbit.can.analyzer.Controller;
 import tk.rynkbit.can.analyzer.UpdateMessages;
+import tk.rynkbit.can.analyzer.log.CSVLogger;
 import tk.rynkbit.can.logic.CANRepository;
 import tk.rynkbit.can.logic.models.TimedCANMessage;
 
@@ -83,9 +84,11 @@ public class VisualizerController extends Controller implements Initializable{
 
             if(message != null){
                 byte[] data = message.getData();
+                int[] logdata = new int[data.length];
                 Date newDate = new Date();
                 String dateString = String.valueOf(newDate.getTime());
-                for(int i = 0; i < data.length; i++){
+
+                for(int i = 0; i < (data.length >= 2 ? 2 : data.length); i++){
                     if(seriesList.size() < (i+1)){
                         XYChart.Series<String, Integer> series = new XYChart.Series();
                         series.setName("Byte " + i);
@@ -98,10 +101,14 @@ public class VisualizerController extends Controller implements Initializable{
                             new XYChart.Data<>(dateString, Byte.toUnsignedInt(data[i])
                     ));
 
+                    logdata[i] = Byte.toUnsignedInt(data[i]);
+
                     if(seriesList.get(i).getData().size() > 50){
                         seriesList.get(i).getData().remove(0);
                     }
                 }
+
+                CSVLogger.getInstance().log(logdata);
             }
         });
     }

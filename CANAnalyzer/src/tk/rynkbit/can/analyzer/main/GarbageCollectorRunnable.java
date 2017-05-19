@@ -1,5 +1,7 @@
 package tk.rynkbit.can.analyzer.main;
 
+import java.util.concurrent.RejectedExecutionException;
+
 /**
  * Created by michael on 16.05.17.
  */
@@ -12,8 +14,10 @@ public class GarbageCollectorRunnable implements Runnable {
 
     @Override
     public void run() {
-        running = true;
-        Runtime.getRuntime().gc();
-        running = false;
+        try {
+            running = true;
+            Runtime.getRuntime().gc();
+            running = false;
+        }catch (RejectedExecutionException ignored){}
     }
 }

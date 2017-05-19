@@ -16,6 +16,7 @@ import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import tk.rynkbit.can.analyzer.Controller;
 import tk.rynkbit.can.analyzer.UpdateMessages;
+import tk.rynkbit.can.analyzer.big.BigController;
 import tk.rynkbit.can.analyzer.main.factories.ConnectOptionFactory;
 import tk.rynkbit.can.analyzer.main.factories.MessageTableCellFactory;
 import tk.rynkbit.can.analyzer.note.NoteController;
@@ -28,6 +29,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 /**
@@ -174,7 +176,12 @@ public class MainController extends Controller implements Initializable {
             tableMessages.refresh();
             canMessages = null;
 
-            executor.execute(model.getGarbageCollectorRunnable());
+            try{
+                executor.execute(model.getGarbageCollectorRunnable());
+            }catch (RejectedExecutionException ignored){
+                System.exit(0);
+            }
+
             model.getUpdateRunnable().setPaused(false);
         });
 
@@ -244,6 +251,28 @@ public class MainController extends Controller implements Initializable {
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void clickBig(ActionEvent actionEvent) {
+        TimedCANMessage canMessage = tableMessages.getSelectionModel().getSelectedItem();
+
+        if(canMessage != null){
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass().getResource("../big/bigLayout.fxml"));
+
+            try {
+                Parent root = loader.load();
+                BigController controller = loader.getController();
+                Stage stage = new Stage();
+
+                stage.setTitle("Big View");
+                stage.setScene(new Scene(root));
+                controller.setCanId(canMessage.getId());
+                stage.show();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
