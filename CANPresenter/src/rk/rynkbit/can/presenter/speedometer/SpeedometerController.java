@@ -66,37 +66,42 @@ public class SpeedometerController implements Initializable, CANMessageListener 
         secondaryBox.getChildren().add(breakGauge);
         secondaryBox.getChildren().add(throttleGauge);
 
-//        ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(
-//                Runtime.getRuntime().availableProcessors()
-//        );
-//        executor.execute(new Runnable() {
-//            Random random = new Random();
-//
-//            @Override
-//            public void run() {
-//                while (true){
-//                    try {
-//                        Thread.sleep(100);
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                    }
-//                    receiveCANMessage(new CANMessage(0x201,
-//                            new byte[]{
-//                                    (byte)random.nextInt(0x27), (byte)random.nextInt(0xff), (byte)0x0,
-//                                    (byte)0x0, (byte)random.nextInt(33), (byte)random.nextInt(0xff),
-//                                    (byte)random.nextInt(0xb4), (byte)0x0}));
-//                }
-//            }
-//        });
-//
+        ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(
+                Runtime.getRuntime().availableProcessors()
+        );
+        executor.execute(new Runnable() {
+            Random random = new Random();
+            boolean running = true;
+            final CANMessage speedMessage = new CANMessage(
+                    0x201, new byte[]{
+                    (byte)0x07, (byte)0x10,
+                    (byte)0x40, (byte)0x00,
+                    (byte)0x46, (byte)0x24,
+                    (byte)0xb2, (byte)0x80
+            });
+
+
+            @Override
+            public void run() {
+                while (running){
+                    try {
+                        Thread.sleep(20);
+                        if(model.getUSBtin() != null){
+                            model.getUSBtin().send(
+                                   speedMessage
+                            );
+                        }
+                    } catch (InterruptedException e) {
+                        running = false;
+                    } catch (USBtinException ignored) {
+
+                    }
+                }
+            }
+        });
+
         receiveCANMessage(new CANMessage(0x201,
                 new byte[]{(byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x00, (byte)0x00, (byte)0x0, (byte)0x0}));
-//        receiveCANMessage(new CANMessage(0x201,
-//                new byte[]{(byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0xb4, (byte)0x0}));
-//        receiveCANMessage(new CANMessage(0x201,
-//                new byte[]{(byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x3f, (byte)0x0}));
-//        receiveCANMessage(new CANMessage(0x201,
-//                new byte[]{(byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0xa5, (byte)0x0}));
         connect();
     }
 
@@ -125,7 +130,7 @@ public class SpeedometerController implements Initializable, CANMessageListener 
 
                 double v = (v1 + v2/255.0) * 195.0 / 255.0 * 3.6;
                 double rpm = rpm1 * 250 + rpm2;
-                double throttle = 100.0 / 0xb4 * throttle1;
+                double throttle = 100.0 / 0xb2 * throttle1;
 
                 rpmGauge.valueProperty().set(rpm);
                 velocityGauge.valueProperty().set(v);
