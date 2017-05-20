@@ -17,6 +17,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Stop;
 import rk.rynkbit.can.presenter.speedometer.factory.GaugeFactory;
+import tk.rynkbit.can.logic.CANRepository;
 
 import java.net.URL;
 import java.util.Random;
@@ -89,7 +90,7 @@ public class SpeedometerController implements Initializable, CANMessageListener 
 //        });
 //
         receiveCANMessage(new CANMessage(0x201,
-                new byte[]{(byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0}));
+                new byte[]{(byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x00, (byte)0x00, (byte)0x0, (byte)0x0}));
 //        receiveCANMessage(new CANMessage(0x201,
 //                new byte[]{(byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0xb4, (byte)0x0}));
 //        receiveCANMessage(new CANMessage(0x201,
@@ -107,7 +108,6 @@ public class SpeedometerController implements Initializable, CANMessageListener 
             usBtin.connect("/dev/ttyACM0");
             usBtin.openCANChannel(125000, USBtin.OpenMode.ACTIVE);
         } catch (USBtinException ignored) {
-
         }
     }
 
@@ -115,22 +115,23 @@ public class SpeedometerController implements Initializable, CANMessageListener 
     public void receiveCANMessage(CANMessage canMessage) {
         if(canMessage.getId() == 0x201){
             Platform.runLater(() -> {
-                int rpm1 = Byte.toUnsignedInt(canMessage.getData()[0]);
-                int rpm2 = Byte.toUnsignedInt(canMessage.getData()[1]);
-                int v1 = Byte.toUnsignedInt(canMessage.getData()[4]);
-                int v2 = Byte.toUnsignedInt(canMessage.getData()[5]);
-                int throttle1 = Byte.toUnsignedInt(canMessage.getData()[6]);
+                double rpm1 = Byte.toUnsignedInt(canMessage.getData()[0]);
+                double rpm2 = Byte.toUnsignedInt(canMessage.getData()[1]);
+                double v1 = Byte.toUnsignedInt(canMessage.getData()[4]);
+                double v2 = Byte.toUnsignedInt(canMessage.getData()[5]);
+                double throttle1 = Byte.toUnsignedInt(canMessage.getData()[6]);
 
-                if(v2 < 150 || v2 > 250){
-                    v2 = 200;
-                }
-                int rpm = rpm1 * 250 + rpm2;
-                double v = v1 * 3.6 * (v2 / 255.0);
+                double vScale = v2 / (double)0xff;
+
+                double v = (v1 + v2/255.0) * 195.0 / 255.0 * 3.6;
+                double rpm = rpm1 * 250 + rpm2;
                 double throttle = 100.0 / 0xb4 * throttle1;
 
                 rpmGauge.valueProperty().set(rpm);
                 velocityGauge.valueProperty().set(v);
                 throttleGauge.valueProperty().set(throttle);
+                clutchGauge.valueProperty().set(v1);
+                breakGauge.valueProperty().set(v2);
             });
         }
     }

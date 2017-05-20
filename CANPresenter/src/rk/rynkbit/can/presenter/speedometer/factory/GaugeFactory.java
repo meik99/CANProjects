@@ -48,7 +48,7 @@ public class GaugeFactory {
                 .minWidth(MIN_WIDTH_PRIMARY)
                 .minHeight(140)
                 .minValue(0)
-                .maxValue(270)
+                .maxValue(200)
                 .skinType(Gauge.SkinType.DIGITAL)
                 .foregroundBaseColor(Color.RED)
                 .barColor(Color.RED)
@@ -56,6 +56,9 @@ public class GaugeFactory {
                 .gradientBarStops(
                         new Stop(0, Color.DARKRED),
                         new Stop(1, Color.GREEN))
+                .animated(true)
+                .animationDuration(100)
+                .startFromZero(true)
                 .build();
     }
 
@@ -72,6 +75,9 @@ public class GaugeFactory {
                 .barBackgroundColor(Color.BLACK)
                 .foregroundBaseColor(Color.GREEN)
                 .barColor(Color.GREEN)
+                .animated(true)
+                .animationDuration(100)
+                .startFromZero(true)
                 .build();
     }
 
@@ -79,15 +85,18 @@ public class GaugeFactory {
         return GaugeBuilder
                 .create()
                 .maxHeight(MAX_HEIGHT_SECONDARY)
-                .title("Clutch")
-                .unit("%")
+                .title("V1")
+                .unit("Byte")
                 .skinType(Gauge.SkinType.DIGITAL)
                 .minValue(0)
-                .maxValue(100)
+                .maxValue(0xff)
                 .startFromZero(true)
                 .barBackgroundColor(Color.BLACK)
                 .foregroundBaseColor(Color.GREEN)
                 .barColor(Color.GREEN)
+                .animated(true)
+                .animationDuration(1)
+                .startFromZero(true)
                 .build();
     }
 
@@ -95,15 +104,18 @@ public class GaugeFactory {
         return GaugeBuilder
                 .create()
                 .maxHeight(MAX_HEIGHT_SECONDARY)
-                .title("Break")
-                .unit("%")
+                .title("V2")
+                .unit("Byte")
                 .skinType(Gauge.SkinType.DIGITAL)
                 .minValue(0)
-                .maxValue(100)
+                .maxValue(0xff)
                 .startFromZero(true)
                 .barBackgroundColor(Color.BLACK)
                 .foregroundBaseColor(Color.GREEN)
                 .barColor(Color.GREEN)
+                .animated(true)
+                .animationDuration(1)
+                .startFromZero(true)
                 .build();
     }
 }

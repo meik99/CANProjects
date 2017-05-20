@@ -88,7 +88,7 @@ public class VisualizerController extends Controller implements Initializable{
                 Date newDate = new Date();
                 String dateString = String.valueOf(newDate.getTime());
 
-                for(int i = 0; i < (data.length >= 2 ? 2 : data.length); i++){
+                for(int i = 0; i < data.length; i++){
                     if(seriesList.size() < (i+1)){
                         XYChart.Series<String, Integer> series = new XYChart.Series();
                         series.setName("Byte " + i);
