@@ -6,19 +6,22 @@ import de.fischl.usbtin.USBtin;
 import de.fischl.usbtin.USBtinException;
 import eu.hansolo.medusa.Gauge;
 import eu.hansolo.medusa.GaugeBuilder;
+import eu.hansolo.medusa.Marker;
+import eu.hansolo.medusa.Section;
+import eu.hansolo.medusa.tools.GradientLookup;
 import javafx.application.Platform;
 import javafx.fxml.Initializable;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Stop;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 import rk.rynkbit.can.presenter.speedometer.factory.GaugeFactory;
 
 import java.net.URL;
+import java.util.Random;
 import java.util.ResourceBundle;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 /**
  * Created by michael on 16.05.17.
@@ -29,35 +32,70 @@ public class SpeedometerController implements Initializable, CANMessageListener 
 
     private SpeedometerModel model = new SpeedometerModel();
 
-    private double width;
-    private double height;
-
-    private final double throttleScale = 100.0 / 0xb4;
-
-    private final Color BACKGROUND_COLOR = Color.WHITE;
-    private final Color MAIN_COLOR = Color.BLUE;
-    private final Color TEXT_COLOR = Color.BLACK;
-
     private Gauge rpmGauge;
     private Gauge velocityGauge;
+    private Gauge throttleGauge;
+    private Gauge breakGauge;
+    private Gauge clutchGauge;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        rpmGauge = GaugeFactory.createGauge(
-                "RPM", "rotations / minute", 0, 7000, true, 6000,
-                new Stop(0, Color.WHITE), new Stop(1.0 / 7 * 5, Color.BLUE),
-                new Stop(1.0/7 * 6, Color.RED), new Stop(1.0, Color.DARKRED)
-        );
-        velocityGauge = GaugeFactory.createGauge(
-                "Velocity", "km/h", 0, 270, false, 0,
-                new Stop(0, Color.WHITE), new Stop(1, Color.RED)
-        );
+        primaryBox.setPadding(new Insets(10));
+        primaryBox.setSpacing(50);
+        primaryBox.setAlignment(Pos.CENTER);
+
+        secondaryBox.setPadding(new Insets(10));
+        secondaryBox.setSpacing(50);
+        secondaryBox.setAlignment(Pos.CENTER);
+
+        rpmGauge =
+                GaugeFactory.createRPMGauge();
+        velocityGauge =
+                GaugeFactory.createVelocityGauge();
+        throttleGauge =
+                GaugeFactory.createThrottleGauge();
+        breakGauge =
+                GaugeFactory.createBreakGauge();
+        clutchGauge =
+                GaugeFactory.createClutchGauge();
 
         primaryBox.getChildren().add(rpmGauge);
         primaryBox.getChildren().add(velocityGauge);
+        secondaryBox.getChildren().add(clutchGauge);
+        secondaryBox.getChildren().add(breakGauge);
+        secondaryBox.getChildren().add(throttleGauge);
 
+//        ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(
+//                Runtime.getRuntime().availableProcessors()
+//        );
+//        executor.execute(new Runnable() {
+//            Random random = new Random();
+//
+//            @Override
+//            public void run() {
+//                while (true){
+//                    try {
+//                        Thread.sleep(100);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//                    receiveCANMessage(new CANMessage(0x201,
+//                            new byte[]{
+//                                    (byte)random.nextInt(0x27), (byte)random.nextInt(0xff), (byte)0x0,
+//                                    (byte)0x0, (byte)random.nextInt(33), (byte)random.nextInt(0xff),
+//                                    (byte)random.nextInt(0xb4), (byte)0x0}));
+//                }
+//            }
+//        });
+//
         receiveCANMessage(new CANMessage(0x201,
-                new byte[]{(byte)0x01, (byte)0xe8, (byte)0x0, (byte)0x0, (byte)0x33, (byte)0x40, (byte)0x0, (byte)0x0}));
+                new byte[]{(byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0}));
+//        receiveCANMessage(new CANMessage(0x201,
+//                new byte[]{(byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0xb4, (byte)0x0}));
+//        receiveCANMessage(new CANMessage(0x201,
+//                new byte[]{(byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x3f, (byte)0x0}));
+//        receiveCANMessage(new CANMessage(0x201,
+//                new byte[]{(byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0xa5, (byte)0x0}));
         connect();
     }
 
@@ -81,15 +119,18 @@ public class SpeedometerController implements Initializable, CANMessageListener 
                 int rpm2 = Byte.toUnsignedInt(canMessage.getData()[1]);
                 int v1 = Byte.toUnsignedInt(canMessage.getData()[4]);
                 int v2 = Byte.toUnsignedInt(canMessage.getData()[5]);
+                int throttle1 = Byte.toUnsignedInt(canMessage.getData()[6]);
 
                 if(v2 < 150 || v2 > 250){
                     v2 = 200;
                 }
                 int rpm = rpm1 * 250 + rpm2;
                 double v = v1 * 3.6 * (v2 / 255.0);
+                double throttle = 100.0 / 0xb4 * throttle1;
 
-                rpmGauge.valueProperty().setValue(rpm);
-                velocityGauge.valueProperty().setValue(v);
+                rpmGauge.valueProperty().set(rpm);
+                velocityGauge.valueProperty().set(v);
+                throttleGauge.valueProperty().set(throttle);
             });
         }
     }
