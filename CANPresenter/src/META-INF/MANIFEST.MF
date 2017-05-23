@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Class-Path: CANLogic.jar jssc-2.8.0.jar Medusa-7.9.jar USBtinLib-1.2.0
+ .jar
+Main-Class: rk.rynkbit.can.presenter.App
+

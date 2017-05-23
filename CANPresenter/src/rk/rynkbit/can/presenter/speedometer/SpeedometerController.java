@@ -1,9 +1,6 @@
 package rk.rynkbit.can.presenter.speedometer;
 
-import de.fischl.usbtin.CANMessage;
-import de.fischl.usbtin.CANMessageListener;
-import de.fischl.usbtin.USBtin;
-import de.fischl.usbtin.USBtinException;
+import de.fischl.usbtin.*;
 import eu.hansolo.medusa.Gauge;
 import eu.hansolo.medusa.GaugeBuilder;
 import eu.hansolo.medusa.Marker;
@@ -66,42 +63,43 @@ public class SpeedometerController implements Initializable, CANMessageListener 
         secondaryBox.getChildren().add(breakGauge);
         secondaryBox.getChildren().add(throttleGauge);
 
-        ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(
-                Runtime.getRuntime().availableProcessors()
-        );
-        executor.execute(new Runnable() {
-            Random random = new Random();
-            boolean running = true;
-            final CANMessage speedMessage = new CANMessage(
-                    0x201, new byte[]{
-                    (byte)0x07, (byte)0x10,
-                    (byte)0x40, (byte)0x00,
-                    (byte)0x46, (byte)0x24,
-                    (byte)0xb2, (byte)0x80
-            });
-
-
-            @Override
-            public void run() {
-                while (running){
-                    try {
-                        Thread.sleep(20);
-                        if(model.getUSBtin() != null){
-                            model.getUSBtin().send(
-                                   speedMessage
-                            );
-                        }
-                    } catch (InterruptedException e) {
-                        running = false;
-                    } catch (USBtinException ignored) {
-
-                    }
-                }
-            }
-        });
-
+//        ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(
+//                Runtime.getRuntime().availableProcessors()
+//        );
+//        executor.execute(new Runnable() {
+//            Random random = new Random();
+//            boolean running = true;
+//            final CANMessage speedMessage = new CANMessage(
+//                    0x201, new byte[]{
+//                    (byte)0x07, (byte)0x10,
+//                    (byte)0x40, (byte)0x00,
+//                    (byte)0x46, (byte)0x24,
+//                    (byte)0xb2, (byte)0x80
+//            });
+//
+//
+//            @Override
+//            public void run() {
+//                while (running){
+//                    try {
+//                        Thread.sleep(20);
+//                        if(model.getUSBtin() != null){
+//                            model.getUSBtin().send(
+//                                   speedMessage
+//                            );
+//                        }
+//                    } catch (InterruptedException e) {
+//                        running = false;
+//                    } catch (USBtinException ignored) {
+//
+//                    }
+//                }
+//            }
+//        });
+//
         receiveCANMessage(new CANMessage(0x201,
                 new byte[]{(byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x00, (byte)0x00, (byte)0x0, (byte)0x0}));
+
         connect();
     }
 
@@ -111,6 +109,16 @@ public class SpeedometerController implements Initializable, CANMessageListener 
         try {
             usBtin.addMessageListener(this);
             usBtin.connect("/dev/ttyACM0");
+
+            usBtin.setFilter(new FilterChain[]{
+                    new FilterChain(
+                            new FilterMask(0xfff, (byte)0x00, (byte)0x00),
+                            new FilterValue[]{
+                                    new FilterValue(0x201, (byte)0x00, (byte)0x00)
+                            }
+                    )
+            });
+
             usBtin.openCANChannel(125000, USBtin.OpenMode.ACTIVE);
         } catch (USBtinException ignored) {
         }
