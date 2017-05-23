@@ -2,31 +2,30 @@ package rk.rynkbit.can.presenter.speedometer;
 
 import de.fischl.usbtin.*;
 import eu.hansolo.medusa.Gauge;
-import eu.hansolo.medusa.GaugeBuilder;
-import eu.hansolo.medusa.Marker;
-import eu.hansolo.medusa.Section;
-import eu.hansolo.medusa.tools.GradientLookup;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.Stop;
 import rk.rynkbit.can.presenter.speedometer.factory.GaugeFactory;
-import tk.rynkbit.can.logic.CANRepository;
 
 import java.net.URL;
-import java.util.Random;
 import java.util.ResourceBundle;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
+
+
 
 /**
  * Created by michael on 16.05.17.
  */
 public class SpeedometerController implements Initializable, CANMessageListener {
+    private static final String VERSION = "0.0.2";
+
     public HBox primaryBox;
     public HBox secondaryBox;
+    public Label labelVersion;
+    public Label labelMessageCount;
 
     private SpeedometerModel model = new SpeedometerModel();
 
@@ -35,6 +34,8 @@ public class SpeedometerController implements Initializable, CANMessageListener 
     private Gauge throttleGauge;
     private Gauge breakGauge;
     private Gauge clutchGauge;
+
+    private volatile int messageCount = 0;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -62,6 +63,8 @@ public class SpeedometerController implements Initializable, CANMessageListener 
         secondaryBox.getChildren().add(clutchGauge);
         secondaryBox.getChildren().add(breakGauge);
         secondaryBox.getChildren().add(throttleGauge);
+
+        labelVersion.setText(VERSION);
 
         connect();
 
@@ -113,6 +116,11 @@ public class SpeedometerController implements Initializable, CANMessageListener 
                 throttleGauge.valueProperty().set(throttle);
                 clutchGauge.valueProperty().set(v1);
                 breakGauge.valueProperty().set(v2);
+
+                synchronized (this){
+                    messageCount++;
+                    labelMessageCount.textProperty().setValue(String.valueOf(messageCount));
+                }
 
             });
         }
