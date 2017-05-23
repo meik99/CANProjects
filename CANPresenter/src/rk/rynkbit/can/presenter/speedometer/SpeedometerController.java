@@ -63,53 +63,18 @@ public class SpeedometerController implements Initializable, CANMessageListener 
         secondaryBox.getChildren().add(breakGauge);
         secondaryBox.getChildren().add(throttleGauge);
 
-//        ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(
-//                Runtime.getRuntime().availableProcessors()
-//        );
-//        executor.execute(new Runnable() {
-//            Random random = new Random();
-//            boolean running = true;
-//            final CANMessage speedMessage = new CANMessage(
-//                    0x201, new byte[]{
-//                    (byte)0x07, (byte)0x10,
-//                    (byte)0x40, (byte)0x00,
-//                    (byte)0x46, (byte)0x24,
-//                    (byte)0xb2, (byte)0x80
-//            });
-//
-//
-//            @Override
-//            public void run() {
-//                while (running){
-//                    try {
-//                        Thread.sleep(20);
-//                        if(model.getUSBtin() != null){
-//                            model.getUSBtin().send(
-//                                   speedMessage
-//                            );
-//                        }
-//                    } catch (InterruptedException e) {
-//                        running = false;
-//                    } catch (USBtinException ignored) {
-//
-//                    }
-//                }
-//            }
-//        });
-//
+        connect();
+
         receiveCANMessage(new CANMessage(0x201,
                 new byte[]{(byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x00, (byte)0x00, (byte)0x0, (byte)0x0}));
 
-        connect();
     }
 
     private void connect() {
         USBtin usBtin = new USBtin();
         model.setUSBtin(usBtin);
         try {
-            usBtin.addMessageListener(this);
             usBtin.connect("/dev/ttyACM0");
-
             usBtin.setFilter(new FilterChain[]{
                     new FilterChain(
                             new FilterMask(0xfff, (byte)0x00, (byte)0x00),
@@ -118,34 +83,47 @@ public class SpeedometerController implements Initializable, CANMessageListener 
                             }
                     )
             });
-
             usBtin.openCANChannel(125000, USBtin.OpenMode.ACTIVE);
+            usBtin.addMessageListener(this);
         } catch (USBtinException ignored) {
         }
     }
 
     @Override
     public void receiveCANMessage(CANMessage canMessage) {
+        if(model.getUSBtin() != null){
+            model.getUSBtin().removeMessageListener(this);
+        }
+
         if(canMessage.getId() == 0x201){
+            System.out.println("ID: " + Integer.toHexString(canMessage.getId()));
+            double rpm1 = Byte.toUnsignedInt(canMessage.getData()[0]);
+            double rpm2 = Byte.toUnsignedInt(canMessage.getData()[1]);
+            double v1 = Byte.toUnsignedInt(canMessage.getData()[4]);
+            double v2 = Byte.toUnsignedInt(canMessage.getData()[5]);
+            double throttle1 = Byte.toUnsignedInt(canMessage.getData()[6]);
+
+            double v = (v1 + v2/255.0) * 195.0 / 255.0 * 3.6;
+            double rpm = rpm1 * 250 + rpm2;
+            double throttle = 100.0 / 0xb2 * throttle1;
+
             Platform.runLater(() -> {
-                double rpm1 = Byte.toUnsignedInt(canMessage.getData()[0]);
-                double rpm2 = Byte.toUnsignedInt(canMessage.getData()[1]);
-                double v1 = Byte.toUnsignedInt(canMessage.getData()[4]);
-                double v2 = Byte.toUnsignedInt(canMessage.getData()[5]);
-                double throttle1 = Byte.toUnsignedInt(canMessage.getData()[6]);
-
-                double vScale = v2 / (double)0xff;
-
-                double v = (v1 + v2/255.0) * 195.0 / 255.0 * 3.6;
-                double rpm = rpm1 * 250 + rpm2;
-                double throttle = 100.0 / 0xb2 * throttle1;
-
                 rpmGauge.valueProperty().set(rpm);
                 velocityGauge.valueProperty().set(v);
                 throttleGauge.valueProperty().set(throttle);
                 clutchGauge.valueProperty().set(v1);
                 breakGauge.valueProperty().set(v2);
+
             });
+        }
+
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        if(model.getUSBtin() != null){
+            model.getUSBtin().addMessageListener(this);
         }
     }
 
