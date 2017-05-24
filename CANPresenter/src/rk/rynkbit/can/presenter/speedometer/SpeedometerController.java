@@ -88,7 +88,7 @@ public class SpeedometerController implements Initializable, CANMessageListener 
                 count++;
             }
 
-            if(count > 10000){
+            if (count > 10000) {
                 System.out.println("Cannot connect to port. Exiting");
                 System.exit(-1);
             }
