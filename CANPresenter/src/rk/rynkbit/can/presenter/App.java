@@ -5,6 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import rk.rynkbit.can.presenter.connect.ConnectController;
 import rk.rynkbit.can.presenter.speedometer.SpeedometerController;
 import rk.rynkbit.can.presenter.speedometer.SpeedometerModel;
 
@@ -16,12 +17,12 @@ public class App extends Application{
         launch(args);
     }
 
-    SpeedometerController controller;
+    ConnectController controller;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("speedometer/speedometerLayout.fxml"));
+        loader.setLocation(getClass().getResource("connect/connectLayout.fxml"));
         Parent root = loader.load();
         controller = loader.getController();
 

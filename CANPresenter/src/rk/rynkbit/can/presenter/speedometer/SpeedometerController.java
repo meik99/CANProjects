@@ -20,7 +20,7 @@ import java.util.ResourceBundle;
  * Created by michael on 16.05.17.
  */
 public class SpeedometerController implements Initializable, CANMessageListener {
-    private static final String VERSION = "0.0.4";
+    private static final String VERSION = "0.0.5";
 
     public HBox primaryBox;
     public HBox secondaryBox;
@@ -66,36 +66,16 @@ public class SpeedometerController implements Initializable, CANMessageListener 
 
         labelVersion.setText(VERSION);
 
-        connect();
-
         receiveCANMessage(new CANMessage(0x201,
                 new byte[]{(byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x00, (byte)0x00, (byte)0x0, (byte)0x0}));
 
     }
 
-    private void connect() {
-        USBtin usBtin = new USBtin();
-        model.setUSBtin(usBtin);
-        boolean dirty = false;
-        int count = 0;
-
-        do{
-            try {
-                usBtin.connect("/dev/ttyACM0");
-                dirty = false;
-            } catch (USBtinException e) {
-                dirty = true;
-                count++;
-            }
-
-            if (count > 10000) {
-                System.out.println("Cannot connect to port. Exiting");
-                System.exit(-1);
-            }
-        }while (dirty == true);
+    public void setUSBTin(USBtin usbTin) {
+        model.setUSBtin(usbTin);
 
         try {
-            usBtin.setFilter(new FilterChain[]{
+            usbTin.setFilter(new FilterChain[]{
                     new FilterChain(
                             new FilterMask(0xfff, (byte)0x00, (byte)0x00),
                             new FilterValue[]{
@@ -103,8 +83,8 @@ public class SpeedometerController implements Initializable, CANMessageListener 
                             }
                     )
             });
-            usBtin.openCANChannel(125000, USBtin.OpenMode.ACTIVE);
-            usBtin.addMessageListener(this);
+            usbTin.openCANChannel(125000, USBtin.OpenMode.ACTIVE);
+            usbTin.addMessageListener(this);
         } catch (USBtinException ignored) {
             System.out.println(ignored.getMessage());
         }
@@ -112,12 +92,7 @@ public class SpeedometerController implements Initializable, CANMessageListener 
 
     @Override
     public void receiveCANMessage(CANMessage canMessage) {
-        if(model.getUSBtin() != null){
-            model.getUSBtin().removeMessageListener(this);
-        }
-
         if(canMessage.getId() == 0x201){
-            System.out.println("ID: " + Integer.toHexString(canMessage.getId()));
             double rpm1 = Byte.toUnsignedInt(canMessage.getData()[0]);
             double rpm2 = Byte.toUnsignedInt(canMessage.getData()[1]);
             double v1 = Byte.toUnsignedInt(canMessage.getData()[4]);
@@ -134,22 +109,9 @@ public class SpeedometerController implements Initializable, CANMessageListener 
                 throttleGauge.valueProperty().set(throttle);
                 clutchGauge.valueProperty().set(v1);
                 breakGauge.valueProperty().set(v2);
-
-                synchronized (this){
-                    messageCount++;
-                    labelMessageCount.textProperty().setValue(String.valueOf(messageCount));
-                }
-
+                messageCount++;
+                labelMessageCount.textProperty().setValue(String.valueOf(messageCount));
             });
-        }
-
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        if(model.getUSBtin() != null){
-            model.getUSBtin().addMessageListener(this);
         }
     }
 
