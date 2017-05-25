@@ -8,6 +8,7 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import rk.rynkbit.can.presenter.speedometer.factory.GaugeFactory;
 
@@ -142,5 +143,10 @@ public class SpeedometerController implements Initializable, CANMessageListener 
         } catch (USBtinException ignored) {
 
         }
+    }
+
+    public void clickHBox(MouseEvent mouseEvent) {
+        stop();
+        System.exit(0);
     }
 }

@@ -20,7 +20,6 @@
       </element>
       <element id="library" level="project" name="eu.hansolo:Medusa:7.9" />
       <element id="library" level="project" name="Maven: org.scream3r:jssc:2.8.0" />
-      <element id="artifact" artifact-name="CANLogic:jar" />
     </root>
   </artifact>
 </component>
