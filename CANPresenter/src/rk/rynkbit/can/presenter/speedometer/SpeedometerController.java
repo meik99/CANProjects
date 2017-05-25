@@ -20,7 +20,7 @@ import java.util.ResourceBundle;
  * Created by michael on 16.05.17.
  */
 public class SpeedometerController implements Initializable, CANMessageListener {
-    private static final String VERSION = "0.0.5";
+    private static final String VERSION = "0.0.6";
 
     public HBox primaryBox;
     public HBox secondaryBox;
@@ -69,10 +69,26 @@ public class SpeedometerController implements Initializable, CANMessageListener 
         receiveCANMessage(new CANMessage(0x201,
                 new byte[]{(byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x00, (byte)0x00, (byte)0x0, (byte)0x0}));
 
+        setUSBTin(new USBtin());
     }
 
     public void setUSBTin(USBtin usbTin) {
         model.setUSBtin(usbTin);
+
+        boolean dirty = true;
+        while(dirty){
+            try {
+                usbTin.connect("/dev/ttyACM0");
+                dirty = false;
+            } catch (USBtinException e) {
+                System.out.println(e.getMessage());
+            }
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
 
         try {
             usbTin.setFilter(new FilterChain[]{

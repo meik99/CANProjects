@@ -17,12 +17,12 @@ public class App extends Application{
         launch(args);
     }
 
-    ConnectController controller;
+    SpeedometerController controller;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("connect/connectLayout.fxml"));
+        loader.setLocation(getClass().getResource("speedometer/speedometerLayout.fxml"));
         Parent root = loader.load();
         controller = loader.getController();
 

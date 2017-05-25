@@ -2,10 +2,12 @@ package rk.rynkbit.can.presenter.connect;
 
 import de.fischl.usbtin.USBtin;
 import de.fischl.usbtin.USBtinException;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Alert;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import rk.rynkbit.can.presenter.speedometer.SpeedometerController;
 
@@ -23,7 +25,12 @@ public class ConnectController {
     public void clickStart(ActionEvent actionEvent) {
         try {
             usBtin = new USBtin();
-            usBtin.connect("/dev/ttyACM0");
+            try{
+                usBtin.connect("/dev/ttyACM0");
+            }catch (USBtinException e){
+                usBtin.connect("/dev/ttyAMA0");
+            }
+
 
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(getClass().getResource("../speedometer/speedometerLayout.fxml"));
@@ -51,5 +58,9 @@ public class ConnectController {
         if(controller != null){
             controller.stop();
         }
+    }
+
+    public void clickCloseBox(MouseEvent mouseEvent) {
+        Platform.exit();
     }
 }
