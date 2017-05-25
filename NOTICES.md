@@ -33,3 +33,22 @@ JSSC is licensed under LGPL. See license text in LICENSE.LGPL
 
 ## Changes
 No changes were made to JSSC library
+
+## Credits
+
+https://code.google.com/archive/p/java-simple-serial-connector/
+
+# Medusa
+
+This library is part of the CANPresenter release.
+
+Apache 2 License text in LICENSE.APACHE.
+
+## License
+Medusa is licensed under the Apache 2 license
+
+## Changes
+No changes were made to this library
+
+## Credits
+https://github.com/HanSolo/Medusa/
