@@ -22,7 +22,7 @@ import java.util.ResourceBundle;
  * Created by michael on 16.05.17.
  */
 public class SpeedometerController implements Initializable, CANMessageListener {
-    private static final String VERSION = "0.0.6";
+    private static final String VERSION = "0.1.0";
 
     public HBox primaryBox;
     public HBox secondaryBox;
