@@ -9,6 +9,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import rk.rynkbit.can.presenter.speedometer.factory.GaugeFactory;
 
@@ -27,6 +28,7 @@ public class SpeedometerController implements Initializable, CANMessageListener 
     public HBox secondaryBox;
     public Label labelVersion;
     public Label labelMessageCount;
+    public AnchorPane rootPane;
 
     private SpeedometerModel model = new SpeedometerModel();
 
@@ -70,19 +72,22 @@ public class SpeedometerController implements Initializable, CANMessageListener 
         receiveCANMessage(new CANMessage(0x201,
                 new byte[]{(byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x00, (byte)0x00, (byte)0x0, (byte)0x0}));
 
-        setUSBTin(new USBtin());
+        //setUSBTin(new USBtin());
     }
 
     public void setUSBTin(USBtin usbTin) {
         model.setUSBtin(usbTin);
 
         boolean dirty = true;
-        while(dirty){
+        int count = 0;
+
+        while(dirty && count < 10000){
             try {
                 usbTin.connect("/dev/ttyACM0");
                 dirty = false;
             } catch (USBtinException e) {
                 System.out.println(e.getMessage());
+                count ++;
             }
             try {
                 Thread.sleep(100);
@@ -133,15 +138,17 @@ public class SpeedometerController implements Initializable, CANMessageListener 
     }
 
     public void stop(){
-        try {
-            model.getUSBtin().closeCANChannel();
-        } catch (USBtinException ignored) {
+        if(model.getUSBtin() != null) {
+            try {
+                model.getUSBtin().closeCANChannel();
+            } catch (USBtinException ignored) {
 
-        }
-        try {
-            model.getUSBtin().disconnect();
-        } catch (USBtinException ignored) {
+            }
+            try {
+                model.getUSBtin().disconnect();
+            } catch (USBtinException ignored) {
 
+            }
         }
     }
 

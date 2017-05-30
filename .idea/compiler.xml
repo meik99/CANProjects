@@ -6,10 +6,12 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="CANHost" />
         <module name="usbhost" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="CANHost" target="1.5" />
       <module name="CANServer" target="1.8" />
       <module name="usbhost" target="1.8" />
       <module name="USBHost" target="1.8" />

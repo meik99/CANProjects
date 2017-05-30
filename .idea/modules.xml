@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/CANAnalyzer/CANAnalyzer.iml" filepath="$PROJECT_DIR$/CANAnalyzer/CANAnalyzer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/CANHost/CANHost.iml" filepath="$PROJECT_DIR$/CANHost/CANHost.iml" />
       <module fileurl="file://$PROJECT_DIR$/CANLogic/CANLogic.iml" filepath="$PROJECT_DIR$/CANLogic/CANLogic.iml" />
       <module fileurl="file://$PROJECT_DIR$/CANPresenter/CANPresenter.iml" filepath="$PROJECT_DIR$/CANPresenter/CANPresenter.iml" />
       <module fileurl="file://$PROJECT_DIR$/CANProjects.iml" filepath="$PROJECT_DIR$/CANProjects.iml" />

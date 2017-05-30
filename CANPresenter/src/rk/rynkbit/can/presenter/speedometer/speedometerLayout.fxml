@@ -2,11 +2,13 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane prefHeight="480.0" prefWidth="800.0" style="-fx-background-color: black;" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="rk.rynkbit.can.presenter.speedometer.SpeedometerController">
+<AnchorPane fx:id="rootPane" prefHeight="480.0" prefWidth="800.0" stylesheets="@../app.css" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="rk.rynkbit.can.presenter.speedometer.SpeedometerController">
    <children>
       <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -21,6 +23,12 @@
                   <Label fx:id="labelVersion" text="0.0.1" textFill="WHITE" />
                   <Label text="Messages: " textFill="WHITE" />
                   <Label fx:id="labelMessageCount" textFill="WHITE" />
+                  <MenuBar HBox.hgrow="ALWAYS">
+                    <menus>
+                      <Menu mnemonicParsing="false" text="Gauges" />
+                        <Menu mnemonicParsing="false" text="Radio" />
+                    </menus>
+                  </MenuBar>
                </children>
             </HBox>
             <HBox fx:id="primaryBox" VBox.vgrow="ALWAYS" />

@@ -125,3 +125,16 @@ hs_err_pid*
 
 # End of https://www.gitignore.io/api/java,intellij,intellij+iml
 
+/CANPresenter/src/rk/rynkbit/can/presenter/BackgroundPresenter.png
+/CANPresenter/src/rk/rynkbit/can/presenter/BackgroundPresenter.jpg
+!/CANProjects.iml
+!/USBHost/USBHost.iml
+!/USBHost/src/main/main.iml
+!/libs/Medusa-7.9.jar
+!/libs/gson-2.8.0-javadoc.jar
+!/libs/USBtinLib-1.2.0.jar
+!/libs/jssc-2.8.0.jar
+!/libs/gson-2.8.0.jar
+!/libs/jssc-2.8.0-javadoc.jar
+!/libs/Medusa-7.9-javadoc.jar
+!/libs/CANLogic.jar

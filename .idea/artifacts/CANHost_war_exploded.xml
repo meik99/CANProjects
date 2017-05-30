@@ -1,0 +1,22 @@
+<component name="ArtifactManager">
+  <artifact type="exploded-war" name="CANHost:war exploded">
+    <output-path>$PROJECT_DIR$/CANHost/target/CANHost</output-path>
+    <root id="root">
+      <element id="directory" name="WEB-INF">
+        <element id="directory" name="classes">
+          <element id="module-output" name="CANHost" />
+        </element>
+        <element id="directory" name="lib">
+          <element id="library" level="project" name="Maven: javax:javaee-web-api:7.0" />
+          <element id="library" level="project" name="Maven: org.scream3r:jssc:2.8.0" />
+          <element id="library" level="project" name="Maven: de.fischl:usbtin:1.2.0" />
+          <element id="library" level="project" name="Maven: tk.rynkbit:canlogic:1.0.0" />
+        </element>
+      </element>
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/CANHost/target/CANHost/META-INF/MANIFEST.MF" />
+      </element>
+      <element id="javaee-facet-resources" facet="CANHost/web/Web" />
+    </root>
+  </artifact>
+</component>
