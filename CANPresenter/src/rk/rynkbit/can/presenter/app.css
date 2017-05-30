@@ -1,3 +1,4 @@
 #rootPane {
     -fx-background-image: url("BackgroundPresenter.jpg");
+    -fx-background-size: stretch;
 }
