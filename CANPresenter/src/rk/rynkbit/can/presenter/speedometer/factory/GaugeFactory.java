@@ -77,6 +77,7 @@ public class GaugeFactory {
                 .skinType(Gauge.SkinType.MODERN)
                 .minValue(0)
                 .maxValue(20)
+                .decimals(2)
                 .startFromZero(true)
                 .foregroundBaseColor(Color.WHITE)
                 .barColor(Color.WHITE)

@@ -88,12 +88,13 @@ public class SpeedometerController implements Initializable, CANMessageListener 
 
         labelVersion.setText(VERSION);
 
+        setUSBTin(new USBtin());
+
         receiveCANMessage(new CANMessage(0x280,
                 new byte[]{(byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x00, (byte)0x00, (byte)0x0, (byte)0x0}));
         receiveCANMessage(new CANMessage(0x320,
                 new byte[]{(byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x00, (byte)0x00, (byte)0x0, (byte)0x0}));
 
-        setUSBTin(new USBtin());
     }
 
     public void setUSBTin(USBtin usBtin) {
@@ -172,7 +173,13 @@ public class SpeedometerController implements Initializable, CANMessageListener 
                     double rpm2 = Byte.toUnsignedInt(canMessage.getData()[3]);
                     throttle.set(Byte.toUnsignedInt(canMessage.getData()[5]) * 0.4);
                     fuelUsage.set(Byte.toUnsignedInt(canMessage.getData()[7]) * 0.1);
-                    rpm.set(rpm1 * rpm2 * 0.25);
+
+                    System.out.println(rpm1);
+                    System.out.println(rpm2);
+
+                    if(rpm2 == 0) rpm2 = 0xff;
+
+                    rpm.set(((rpm1 * rpm2) * 0.5));
             }
             if(canMessage.getId() == 0x320){
                 fuel.set(Byte.toUnsignedInt(canMessage.getData()[2]));
