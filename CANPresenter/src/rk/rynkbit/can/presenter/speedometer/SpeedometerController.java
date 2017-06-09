@@ -7,15 +7,18 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
+import jssc.SerialPortList;
 import rk.rynkbit.can.presenter.speedometer.factory.GaugeFactory;
 
 import java.net.URL;
 import java.util.ResourceBundle;
-
+import java.util.regex.Pattern;
 
 
 /**
@@ -68,47 +71,92 @@ public class SpeedometerController implements Initializable, CANMessageListener 
         secondaryBox.getChildren().add(throttleGauge);
 
         labelVersion.setText(VERSION);
+//
+//        receiveCANMessage(new CANMessage(0x201,
+//                new byte[]{(byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x00, (byte)0x00, (byte)0x0, (byte)0x0}));
 
-        receiveCANMessage(new CANMessage(0x201,
-                new byte[]{(byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x00, (byte)0x00, (byte)0x0, (byte)0x0}));
-
-        //setUSBTin(new USBtin());
+        setUSBTin(new USBtin());
     }
 
-    public void setUSBTin(USBtin usbTin) {
-        model.setUSBtin(usbTin);
+    public void setUSBTin(USBtin usBtin) {
+        model.setUSBtin(usBtin);
 
-        boolean dirty = true;
+
+        String[] portNames = SerialPortList.getPortNames(Pattern.compile("ttyACM[0-9]*"));
+        boolean connected = false;
+
+        final StringBuilder ports = new StringBuilder();
         int count = 0;
 
-        while(dirty && count < 10000){
-            try {
-                usbTin.connect("/dev/ttyACM0");
-                dirty = false;
-            } catch (USBtinException e) {
-                System.out.println(e.getMessage());
-                count ++;
-            }
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        System.out.println("Ports found: ");
+
+        for (String port :
+                portNames) {
+            ports.append(port);
+            ports.append(System.lineSeparator());
         }
 
-        try {
-            usbTin.setFilter(new FilterChain[]{
-                    new FilterChain(
-                            new FilterMask(0xfff, (byte)0x00, (byte)0x00),
-                            new FilterValue[]{
-                                    new FilterValue(0x201, (byte)0x00, (byte)0x00)
-                            }
-                    )
+        System.out.println(ports.toString());
+        System.out.println();
+        boolean usbConnected = false;
+
+        if(portNames.length > 0){
+            do{
+                if(usbConnected == false) {
+                    System.out.println("Connecting to " + portNames[count]);
+                    try {
+                        usBtin.connect(portNames[count]);
+//                    try {
+//                        usBtin.setFilter(new FilterChain[]{
+//                                new FilterChain(new FilterMask(0xff), new FilterValue[]{
+//                                        new FilterValue(0x201)
+//                                })
+//                        });
+//                    } catch (USBtinException e) {
+//                        e.printStackTrace();
+//                    }
+                        usbConnected = true;
+                    } catch (USBtinException e) {
+                        System.out.println(e.getMessage());
+                    }
+                }
+                if(usbConnected == true) {
+                    try {
+                        usBtin.openCANChannel(125000, USBtin.OpenMode.ACTIVE);
+
+
+                        connected = true;
+                    } catch (USBtinException e) {
+                        System.out.println(e.getMessage());
+                        try {
+                            usBtin.disconnect();
+                        } catch (USBtinException e1) {
+                            System.out.println(e1.getMessage());
+                        }
+                    }
+                }
+
+                count++;
+            }while (connected == false && count < portNames.length);
+        }
+
+        if(connected == true){
+            usBtin.addMessageListener(this);
+        }else{
+            System.out.println("Could not connect to a port");
+            Platform.runLater(() ->{
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Port error");
+                alert.setContentText(
+                        "No usable port found\n" +
+                                "Searched ports: " +
+                                ports.toString()
+                );
+                alert.initOwner(rootPane.getScene().getWindow());
+                alert.showAndWait()
+                        .filter(response -> response == ButtonType.OK);
+
             });
-            usbTin.openCANChannel(125000, USBtin.OpenMode.ACTIVE);
-            usbTin.addMessageListener(this);
-        } catch (USBtinException ignored) {
-            System.out.println(ignored.getMessage());
         }
     }
 
@@ -121,7 +169,7 @@ public class SpeedometerController implements Initializable, CANMessageListener 
             double v2 = Byte.toUnsignedInt(canMessage.getData()[5]);
             double throttle1 = Byte.toUnsignedInt(canMessage.getData()[6]);
 
-            double v = (v1 + v2/255.0) * 195.0 / 255.0 * 3.6;
+            double v = (v1 + v2/255.0) * 0.75 * 3.6;
             double rpm = rpm1 * 250 + rpm2;
             double throttle = 100.0 / 0xb2 * throttle1;
 
