@@ -179,15 +179,14 @@ public class SpeedometerController implements Initializable, CANMessageListener 
 
                     if(rpm2 == 0) rpm2 = 0xff;
 
-                    rpm.set(((rpm1 * rpm2) * 0.5));
+                    rpm.set(((rpm2 + rpm1 / 255) * 0.5));
             }
             if(canMessage.getId() == 0x320){
                 fuel.set(Byte.toUnsignedInt(canMessage.getData()[2]));
                 double v1 = Byte.toUnsignedInt(canMessage.getData()[3]);
                 double v2 = Byte.toUnsignedInt(canMessage.getData()[4]);
-                double vTemp = (v1*v2-1) * 0.01;
+                double vTemp = (v2 + v1 / 255) * 3.6 * 0.38;
 
-                if(vTemp < 0) vTemp = 0;
 
                 v.set(vTemp);
             }
