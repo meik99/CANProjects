@@ -32,6 +32,7 @@ public class SpeedometerController implements Initializable, CANMessageListener 
     public Label labelVersion;
     public Label labelMessageCount;
     public AnchorPane rootPane;
+    public HBox toolBox;
 
     private SpeedometerModel model = new SpeedometerModel();
 
@@ -52,6 +53,10 @@ public class SpeedometerController implements Initializable, CANMessageListener 
         secondaryBox.setPadding(new Insets(10));
         secondaryBox.setSpacing(50);
         secondaryBox.setAlignment(Pos.CENTER);
+
+        toolBox.setOnMouseClicked((event) -> {
+            Platform.exit();
+        });
 
         rpmGauge =
                 GaugeFactory.createRPMGauge();
