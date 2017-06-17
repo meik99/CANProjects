@@ -122,6 +122,7 @@ public class GaugeFactory {
         return GaugeBuilder
                 .create()
                 .maxHeight(175)
+                .averagingPeriod(100)
                 .title("Usage")
                 .unit("l/100km")
                 .skinType(Gauge.SkinType.TILE_SPARK_LINE)
@@ -138,6 +139,7 @@ public class GaugeFactory {
         return GaugeBuilder
                 .create()
                 .maxHeight(175)
+                .averagingPeriod(100)
                 .title("Remaining")
                 .unit("km")
                 .skinType(Gauge.SkinType.TILE_SPARK_LINE)

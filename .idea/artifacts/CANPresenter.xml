@@ -17,6 +17,7 @@
       <element id="archive" name="CANPresenter.jar">
         <element id="module-output" name="CANPresenter" />
         <element id="file-copy" path="$PROJECT_DIR$/libs/USBtinLib-1.2.0.jar" />
+        <element id="file-copy" path="$PROJECT_DIR$/libs/gson-2.8.0.jar" />
       </element>
       <element id="library" level="project" name="eu.hansolo:Medusa:7.9" />
       <element id="library" level="project" name="Maven: org.scream3r:jssc:2.8.0" />

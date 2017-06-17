@@ -13,7 +13,6 @@ import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import jssc.SerialPortList;
 import rk.rynkbit.can.presenter.data.Usage;
 import rk.rynkbit.can.presenter.speedometer.factory.GaugeFactory;
@@ -53,6 +52,8 @@ public class SpeedometerController implements Initializable, CANMessageListener 
     private final SimpleDoubleProperty fuelUsage = new SimpleDoubleProperty();
     private final SimpleDoubleProperty fuel = new SimpleDoubleProperty();
     private final SimpleDoubleProperty throttle = new SimpleDoubleProperty();
+    private final SimpleDoubleProperty fuelAvaerage = new SimpleDoubleProperty();
+    private final SimpleDoubleProperty remainingDistance = new SimpleDoubleProperty();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -93,6 +94,8 @@ public class SpeedometerController implements Initializable, CANMessageListener 
         fuelGauge.valueProperty().bind(fuel);
         fuelUsageGauge.valueProperty().bind(fuelUsage);
         coolingGauge.valueProperty().bind(cooling);
+        fuelAverageGauge.valueProperty().bind(fuelAvaerage);
+        remainingDistanceGauge.valueProperty().bind(remainingDistance);
 
         primaryBox.getChildren().add(rpmGauge);
         primaryBox.getChildren().addAll(tertiaryBox);
@@ -197,7 +200,7 @@ public class SpeedometerController implements Initializable, CANMessageListener 
 
                 if(rpmResult > 0){
                     Usage.getInstance().addUsage(fuelUsage1);
-                    fuelAverageGauge.valueProperty().set(
+                    fuelAvaerage.set(
                             Usage.getInstance().getAverageUsage()
                     );
                 }
@@ -212,9 +215,11 @@ public class SpeedometerController implements Initializable, CANMessageListener 
                 fuel.set(fuelResult);
                 v.set(vTemp);
 
-                remainingDistanceGauge.valueProperty().set(
-                        fuelResult / Usage.getInstance().getAverageUsage() * 100
-                );
+                if(Usage.getInstance().getAverageUsage() > 0){
+                    remainingDistance.set(
+                            (fuelResult / Usage.getInstance().getAverageUsage()) * 100.0
+                    );
+                }
             }
             if(canMessage.getId() == 0x288){
                 cooling.set(
