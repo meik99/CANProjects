@@ -5,9 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import rk.rynkbit.can.presenter.connect.ConnectController;
 import rk.rynkbit.can.presenter.speedometer.SpeedometerController;
-import rk.rynkbit.can.presenter.speedometer.SpeedometerModel;
 
 /**
  * Created by michael on 16.05.17.

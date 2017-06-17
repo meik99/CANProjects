@@ -13,7 +13,9 @@ import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import jssc.SerialPortList;
+import rk.rynkbit.can.presenter.data.Usage;
 import rk.rynkbit.can.presenter.speedometer.factory.GaugeFactory;
 
 import java.net.URL;
@@ -29,6 +31,7 @@ public class SpeedometerController implements Initializable, CANMessageListener 
 
     public HBox primaryBox;
     public HBox secondaryBox;
+    public HBox tertiaryBox;
     public Label labelVersion;
     public Label labelMessageCount;
     public AnchorPane rootPane;
@@ -41,6 +44,8 @@ public class SpeedometerController implements Initializable, CANMessageListener 
     private Gauge fuelGauge;
     private Gauge fuelUsageGauge;
     private Gauge coolingGauge;
+    private Gauge fuelAverageGauge;
+    private Gauge remainingDistanceGauge;
 
     private final SimpleDoubleProperty rpm = new SimpleDoubleProperty();
     private final SimpleDoubleProperty v = new SimpleDoubleProperty();
@@ -59,6 +64,9 @@ public class SpeedometerController implements Initializable, CANMessageListener 
         secondaryBox.setSpacing(50);
         secondaryBox.setAlignment(Pos.CENTER);
 
+        tertiaryBox = new HBox(0);
+        tertiaryBox.setAlignment(Pos.CENTER);
+
         rpmGauge =
                 GaugeFactory.createRPMGauge();
         velocityGauge =
@@ -71,6 +79,13 @@ public class SpeedometerController implements Initializable, CANMessageListener 
                 GaugeFactory.createActualFuelUsageGauge();
         coolingGauge =
                 GaugeFactory.createRefrigarateGauge();
+        fuelAverageGauge =
+                GaugeFactory.createAverageUsageGauge();
+        remainingDistanceGauge =
+                GaugeFactory.createRemainingDistanceGauge();
+
+        tertiaryBox.getChildren().add(fuelAverageGauge);
+        tertiaryBox.getChildren().add(remainingDistanceGauge);
 
         rpmGauge.valueProperty().bind(rpm);
         velocityGauge.valueProperty().bind(v);
@@ -80,6 +95,7 @@ public class SpeedometerController implements Initializable, CANMessageListener 
         coolingGauge.valueProperty().bind(cooling);
 
         primaryBox.getChildren().add(rpmGauge);
+        primaryBox.getChildren().addAll(tertiaryBox);
         primaryBox.getChildren().add(velocityGauge);
         secondaryBox.getChildren().add(coolingGauge);
         secondaryBox.getChildren().add(fuelUsageGauge);
@@ -90,10 +106,10 @@ public class SpeedometerController implements Initializable, CANMessageListener 
 
         setUSBTin(new USBtin());
 
-        receiveCANMessage(new CANMessage(0x280,
-                new byte[]{(byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x00, (byte)0x00, (byte)0x0, (byte)0x0}));
-        receiveCANMessage(new CANMessage(0x320,
-                new byte[]{(byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x00, (byte)0x00, (byte)0x0, (byte)0x0}));
+//        receiveCANMessage(new CANMessage(0x280,
+//                new byte[]{(byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x00, (byte)0x00, (byte)0x0, (byte)0x0}));
+//        receiveCANMessage(new CANMessage(0x320,
+//                new byte[]{(byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x00, (byte)0x00, (byte)0x0, (byte)0x0}));
 
     }
 
@@ -169,26 +185,36 @@ public class SpeedometerController implements Initializable, CANMessageListener 
     public void receiveCANMessage(CANMessage canMessage) {
         Platform.runLater(() -> {
             if(canMessage.getId() == 0x280){
-                    double rpm1 = Byte.toUnsignedInt(canMessage.getData()[2]);
-                    double rpm2 = Byte.toUnsignedInt(canMessage.getData()[3]);
-                    throttle.set(Byte.toUnsignedInt(canMessage.getData()[5]) * 0.4);
-                    fuelUsage.set(Byte.toUnsignedInt(canMessage.getData()[7]) * 0.1);
+                double rpm1 = Byte.toUnsignedInt(canMessage.getData()[2]);
+                double rpm2 = Byte.toUnsignedInt(canMessage.getData()[3]);
+                double rpmResult = (rpm2 + rpm1 / 255) * 65.0;
+                double fuelUsage1 = rpmResult > 0 ?
+                        Byte.toUnsignedInt(canMessage.getData()[7]) * 0.1 : 0;
 
-                    System.out.println(rpm1);
-                    System.out.println(rpm2);
+                throttle.set(Byte.toUnsignedInt(canMessage.getData()[5]) * 0.4);
+                fuelUsage.set(fuelUsage1);
+                rpm.set(rpmResult);
 
-                    if(rpm2 == 0) rpm2 = 0xff;
-
-                    rpm.set(((rpm2 + rpm1 / 255) * 0.5));
+                if(rpmResult > 0){
+                    Usage.getInstance().addUsage(fuelUsage1);
+                    fuelAverageGauge.valueProperty().set(
+                            Usage.getInstance().getAverageUsage()
+                    );
+                }
             }
             if(canMessage.getId() == 0x320){
-                fuel.set(Byte.toUnsignedInt(canMessage.getData()[2]));
+                double fuelResult = Byte.toUnsignedInt(canMessage.getData()[2]);
                 double v1 = Byte.toUnsignedInt(canMessage.getData()[3]);
                 double v2 = Byte.toUnsignedInt(canMessage.getData()[4]);
                 double vTemp = (v2 + v1 / 255) * 3.6 * 0.38;
 
 
+                fuel.set(fuelResult);
                 v.set(vTemp);
+
+                remainingDistanceGauge.valueProperty().set(
+                        fuelResult / Usage.getInstance().getAverageUsage() * 100
+                );
             }
             if(canMessage.getId() == 0x288){
                 cooling.set(

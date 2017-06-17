@@ -2,6 +2,7 @@ package rk.rynkbit.can.presenter.speedometer.factory;
 
 import eu.hansolo.medusa.Gauge;
 import eu.hansolo.medusa.GaugeBuilder;
+import javafx.geometry.Insets;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.paint.Stop;
@@ -18,9 +19,7 @@ public class GaugeFactory {
     public static Gauge createRPMGauge(){
         return GaugeBuilder.create()
                 .title("RPM")
-                .minWidth(MIN_WIDTH_PRIMARY)
-                .minHeight(140)
-                .skinType(Gauge.SkinType.MODERN)
+                .skinType(Gauge.SkinType.DIGITAL)
                 .minValue(0)
                 .maxValue(7000)
                 .barColor(Color.RED)
@@ -37,13 +36,11 @@ public class GaugeFactory {
     public static Gauge createVelocityGauge() {
         return GaugeBuilder
                 .create()
+                .skinType(Gauge.SkinType.DIGITAL)
                 .title("Speed")
                 .unit("km/h")
-                .minWidth(MIN_WIDTH_PRIMARY)
-                .minHeight(140)
                 .minValue(0)
                 .maxValue(200)
-                .skinType(Gauge.SkinType.MODERN)
                 .foregroundBaseColor(Color.RED)
                 .barColor(Color.RED)
                 .animated(false)
@@ -54,10 +51,10 @@ public class GaugeFactory {
     public static Gauge createThrottleGauge() {
         return GaugeBuilder
                 .create()
+                .skinType(Gauge.SkinType.DIGITAL)
                 .maxHeight(MAX_HEIGHT_SECONDARY)
                 .title("Throttle")
                 .unit("%")
-                .skinType(Gauge.SkinType.MODERN)
                 .minValue(0)
                 .maxValue(100)
                 .startFromZero(true)
@@ -74,13 +71,13 @@ public class GaugeFactory {
                 .maxHeight(MAX_HEIGHT_SECONDARY)
                 .title("Actual Usage")
                 .unit("Liter/100 km")
-                .skinType(Gauge.SkinType.MODERN)
+                .skinType(Gauge.SkinType.DIGITAL)
                 .minValue(0)
                 .maxValue(20)
                 .decimals(2)
                 .startFromZero(true)
-                .foregroundBaseColor(Color.WHITE)
-                .barColor(Color.WHITE)
+                .foregroundBaseColor(Color.LIGHTGREEN)
+                .barColor(Color.LIGHTGREEN)
                 .animated(false)
                 .startFromZero(true)
                 .build();
@@ -92,14 +89,13 @@ public class GaugeFactory {
                 .maxHeight(MAX_HEIGHT_SECONDARY)
                 .title("Fuel")
                 .unit("Liter")
-                .skinType(Gauge.SkinType.MODERN)
+                .skinType(Gauge.SkinType.DIGITAL)
                 .minValue(0)
                 .maxValue(55)
                 .valueVisible(true)
                 .startFromZero(true)
-                .barBackgroundColor(Color.BLACK)
-                .foregroundBaseColor(Color.WHITE)
-                .barColor(Color.WHITE)
+                .foregroundBaseColor(Color.LIGHTGREEN)
+                .barColor(Color.LIGHTGREEN)
                 .animated(false)
                 .startFromZero(true)
                 .build();
@@ -109,14 +105,45 @@ public class GaugeFactory {
         return GaugeBuilder
                 .create()
                 .maxHeight(MAX_HEIGHT_SECONDARY)
-                .title("°C")
-                .unit("Cooling Fluid")
-                .skinType(Gauge.SkinType.MODERN)
+                .title("Cooling Fluid")
+                .unit("°C")
+                .skinType(Gauge.SkinType.DIGITAL)
                 .minValue(0)
                 .maxValue(120)
                 .startFromZero(true)
                 .foregroundBaseColor(Color.ORANGE)
                 .barColor(Color.ORANGE)
+                .animated(false)
+                .startFromZero(true)
+                .build();
+    }
+
+    public static Gauge createAverageUsageGauge(){
+        return GaugeBuilder
+                .create()
+                .maxHeight(175)
+                .title("Usage")
+                .unit("l/100km")
+                .skinType(Gauge.SkinType.TILE_SPARK_LINE)
+                .startFromZero(true)
+//                .foregroundBaseColor(Color.ORANGE)
+//                .barColor(Color.ORANGE)
+                .animated(false)
+                .startFromZero(true)
+                .padding(new Insets(0, 10, 0, 0))
+                .build();
+    }
+
+    public static Gauge createRemainingDistanceGauge(){
+        return GaugeBuilder
+                .create()
+                .maxHeight(175)
+                .title("Remaining")
+                .unit("km")
+                .skinType(Gauge.SkinType.TILE_SPARK_LINE)
+                .startFromZero(true)
+//                .foregroundBaseColor(Color.ORANGE)
+//                .barColor(Color.ORANGE)
                 .animated(false)
                 .startFromZero(true)
                 .build();
