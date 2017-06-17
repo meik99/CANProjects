@@ -127,6 +127,7 @@ public class GaugeFactory {
                 .unit("l/100km")
                 .skinType(Gauge.SkinType.TILE_SPARK_LINE)
                 .startFromZero(true)
+                .decimals(2)
 //                .foregroundBaseColor(Color.ORANGE)
 //                .barColor(Color.ORANGE)
                 .animated(false)
@@ -148,6 +149,7 @@ public class GaugeFactory {
 //                .barColor(Color.ORANGE)
                 .animated(false)
                 .startFromZero(true)
+                .maxValue(2000)
                 .build();
     }
 }
